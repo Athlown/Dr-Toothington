@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dr. Toothington - Dental Platformer</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+touch-action: none;
+}
+
+body {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+font-family: 'Comic Sans MS', cursive, sans-serif;
+overflow: hidden;
+}
+
+#game-container {
+position: relative;
+box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+border-radius: 15px;
+overflow: hidden;
+}
+
+canvas {
+display: block;
+background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #98FB98 100%);
+border-radius: 15px;
+}
+
+#ui-layer {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+}
+
+.score-board {
+position: absolute;
+top: 10px;
+left: 10px;
+background: rgba(255,255,255,0.9);
+padding: 10px 15px;
+border-radius: 20px;
+font-size: 18px;
+font-weight: bold;
+color: #4a5568;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.health-display {
+position: absolute;
+top: 10px;
+right: 10px;
+display: flex;
+gap: 5px;
+}
+
+.heart {
+font-size: 24px;
+filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.controls {
+position: absolute;
+bottom: 20px;
+width: 100%;
+display: flex;
+justify-content: space-between;
+padding: 0 20px;
+pointer-events: auto;
+}
+
+.control-btn {
+width: 70px;
+height: 70px;
+border-radius: 50%;
+border: none;
+background: rgba(255,255,255,0.8);
+font-size: 30px;
+cursor: pointer;
+touch-action: manipulation;
+box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+transition: transform 0.1s;
+display: flex;
+align-items: center;
+justify-content: center;
+user-select: none;
+}
+
+.control-btn:active {
+transform: scale(0.9);
+background: rgba(255,255,255,1);
+}
+
+.d-pad {
+display: flex;
+gap: 10px;
+}
+
+#start-screen, #game-over-screen, #win-screen {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0,0,0,0.8);
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+color: white;
+pointer-events: auto;
+z-index: 10;
+}
+
+.hidden {
+display: none !important;
+}
+
+h1 {
+font-size: 2.5em;
+margin-bottom: 20px;
+text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+text-align: center;
+}
+
+.tooth-icon {
+font-size: 80px;
+margin: 20px;
+animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-20px); }
+}
+
+.btn-start {
+padding: 15px 40px;
+font-size: 1.3em;
+background: linear-gradient(135deg, #48bb78, #38a169);
+color: white;
+border: none;
+border-radius: 30px;
+cursor: pointer;
+font-family: inherit;
+font-weight: bold;
+box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+transition: transform 0.2s;
+margin-top: 20px;
+}
+
+.btn-start:hover {
+transform: scale(1.05);
+}
+
+.instructions {
+background: rgba(255,255,255,0.1);
+padding: 20px;
+border-radius: 15px;
+margin: 20px;
+max-width: 400px;
+text-align: center;
+line-height: 1.6;
+}
+
+.tip-box {
+position: absolute;
+bottom: 100px;
+left: 50%;
+transform: translateX(-50%);
+background: rgba(255, 248, 220, 0.95);
+color: #744210;
+padding: 15px 20px;
+border-radius: 10px;
+border: 2px solid #f6ad55;
+font-size: 14px;
+max-width: 300px;
+text-align: center;
+opacity: 0;
+transition: opacity 0.5s;
+pointer-events: none;
+}
+
+.tip-box.show {
+opacity: 1;
+}
+
+@media (min-width: 768px) {
+.controls {
+display: none;
+}
+}
+</style>
+</head>
+<body>
+<div id="game-container">
+<canvas id="gameCanvas"></canvas>
+
+<div id="ui-layer">
+<div class="score-board">
+🪥 <span id="score">0</span>/5
+</div>
+<div class="health-display" id="hearts">
+<span class="heart">❤️</span>
+<span class="heart">❤️</span>
+<span class="heart">❤️</span>
+</div>
+
+<div class="tip-box" id="tip-box"></div>
+
+<div class="controls">
+<div class="d-pad">
+<button class="control-btn" id="btn-left">⬅️</button>
+<button class="control-btn" id="btn-right">➡️</button>
+</div>
+<button class="control-btn" id="btn-jump">⬆️</button>
+</div>
+</div>
+
+<div id="start-screen">
+<div class="tooth-icon">🦷</div>
+<h1>Dr. Toothington</h1>
+<div class="instructions">
+<p>🎮 <strong>How to Play:</strong></p>
+<p>⬅️ ➡️ Move | ⬆️ Jump</p>
+<p>🪥 Collect 5 toothbrushes</p>
+<p>⚡ Jump on sugar monsters to defeat them</p>
+<p>🚫 Don't fall or touch monsters from the side!</p>
+</div>
+<button class="btn-start" onclick="startGame()">Start Adventure!</button>
+</div>
+
+<div id="game-over-screen" class="hidden">
+<div class="tooth-icon">😭</div>
+<h1>Game Over!</h1>
+<p style="font-size: 1.2em; margin: 10px;">Timmy got cavities!</p>
+<button class="btn-start" onclick="resetGame()">Try Again</button>
+</div>
+
+<div id="win-screen" class="hidden">
+<div class="tooth-icon">✨</div>
+<h1>You Win!</h1>
+<p style="font-size: 1.2em; margin: 10px;">Timmy is sparkling clean!</p>
+<div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; margin: 20px; text-align: center;">
+<p>🏆 Dental Hero Certificate 🏆</p>
+<p id="final-score" style="margin-top: 10px;"></p>
+</div>
+<button class="btn-start" onclick="resetGame()">Play Again</button>
+</div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Game dimensions
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
+
+// Set canvas size
+function resizeCanvas() {
+const maxWidth = Math.min(window.innerWidth - 20, 800);
+const maxHeight = Math.min(window.innerHeight - 20, 600);
+const scale = Math.min(maxWidth / GAME_WIDTH, maxHeight / GAME_HEIGHT);
+
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
+canvas.style.width = (GAME_WIDTH * scale) + 'px';
+canvas.style.height = (GAME_HEIGHT * scale) + 'px';
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Game state
+let gameRunning = false;
+let score = 0;
+let health = 3;
+let cameraX = 0;
+
+// Input handling
+const keys = {
+left: false,
+right: false,
+up: false
+};
+
+// Touch controls
+const btnLeft = document.getElementById('btn-left');
+const btnRight = document.getElementById('btn-right');
+const btnJump = document.getElementById('btn-jump');
+
+function setupTouchControls() {
+const addTouch = (btn, key) => {
+btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
+btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+btn.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
+btn.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
+btn.addEventListener('mouseleave', (e) => { e.preventDefault(); keys[key] = false; });
+};
+
+addTouch(btnLeft, 'left');
+addTouch(btnRight, 'right');
+addTouch(btnJump, 'up');
+}
+
+setupTouchControls();
+
+// Keyboard controls
+window.addEventListener('keydown', (e) => {
+if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') keys.up = true;
+});
+
+window.addEventListener('keyup', (e) => {
+if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') keys.up = false;
+});
+
+// Game objects
+class Player {
+constructor(x, y) {
+this.x = x;
+this.y = y;
+this.width = 40;
+this.height = 40;
+this.velocityX = 0;
+this.velocityY = 0;
+this.speed = 5;
+this.jumpPower = -12;
+this.gravity = 0.5;
+this.grounded = false;
+this.facingRight = true;
+this.invincible = false;
+this.invincibleTime = 0;
+}
+
+update() {
+// Horizontal movement
+if (keys.left) {
+this.velocityX = -this.speed;
+this.facingRight = false;
+} else if (keys.right) {
+this.velocityX = this.speed;
+this.facingRight = true;
+} else {
+this.velocityX *= 0.8; // Friction
+}
+
+// Jump
+if (keys.up && this.grounded) {
+this.velocityY = this.jumpPower;
+this.grounded = false;
+createParticles(this.x + this.width/2, this.y + this.height, '#8B4513');
+}
+
+// Apply gravity
+this.velocityY += this.gravity;
+
+// Update position
+this.x += this.velocityX;
+this.y += this.velocityY;
+
+// Invincibility frames
+if (this.invincible) {
+this.invincibleTime--;
+if (this.invincibleTime <= 0) this.invincible = false;
+}
+
+// Check platform collisions
+this.grounded = false;
+platforms.forEach(platform => {
+if (this.checkCollision(platform)) {
+// Landing on top
+if (this.velocityY > 0 && this.y < platform.y) {
+this.y = platform.y - this.height;
+this.velocityY = 0;
+this.grounded = true;
+}
+// Hitting from below
+else if (this.velocityY < 0 && this.y > platform.y) {
+this.y = platform.y + platform.height;
+this.velocityY = 0;
+}
+// Side collisions
+else if (this.velocityX > 0) {
+this.x = platform.x - this.width;
+this.velocityX = 0;
+} else if (this.velocityX < 0) {
+this.x = platform.x + platform.width;
+this.velocityX = 0;
+}
+}
+});
+
+// Fall off screen
+if (this.y > GAME_HEIGHT + 100) {
+takeDamage();
+this.respawn();
+}
+}
+
+checkCollision(obj) {
+return this.x < obj.x + obj.width &&
+this.x + this.width > obj.x &&
+this.y < obj.y + obj.height &&
+this.y + this.height > obj.y;
+}
+
+respawn() {
+this.x = 100;
+this.y = 300;
+this.velocityX = 0;
+this.velocityY = 0;
+}
+
+draw() {
+ctx.save();
+
+// Blink if invincible
+if (this.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
+ctx.globalAlpha = 0.5;
+}
+
+// Draw Dr. Toothington (cute tooth character)
+ctx.translate(this.x + this.width/2, this.y + this.height/2);
+if (!this.facingRight) ctx.scale(-1, 1);
+
+// Body (tooth shape)
+ctx.fillStyle = '#FFFFFF';
+ctx.beginPath();
+ctx.moveTo(-15, -15);
+ctx.quadraticCurveTo(-20, 0, -15, 15);
+ctx.lineTo(15, 15);
+ctx.quadraticCurveTo(20, 0, 15, -15);
+ctx.closePath();
+ctx.fill();
+ctx.strokeStyle = '#DDD';
+ctx.lineWidth = 2;
+ctx.stroke();
+
+// Eyes
+ctx.fillStyle = '#000';
+ctx.beginPath();
+ctx.arc(-5, -5, 3, 0, Math.PI * 2);
+ctx.arc(8, -5, 3, 0, Math.PI * 2);
+ctx.fill();
+
+// Smile
+ctx.beginPath();
+ctx.arc(0, 5, 8, 0, Math.PI);
+ctx.strokeStyle = '#000';
+ctx.lineWidth = 2;
+ctx.stroke();
+
+// Toothbrush weapon
+if (score > 0) {
+ctx.fillStyle = '#FF6B6B';
+ctx.fillRect(15, -5, 20, 4);
+ctx.fillStyle = '#FFFFFF';
+ctx.fillRect(30, -8, 8, 10);
+}
+
+ctx.restore();
+}
+}
+
+class Platform {
+constructor(x, y, width, height, type = 'normal') {
+this.x = x;
+this.y = y;
+this.width = width;
+this.height = height;
+this.type = type;
+}
+
+draw() {
+// Draw relative to camera
+const drawX = this.x - cameraX;
+
+if (this.type === 'grass') {
+// Grass top
+ctx.fillStyle = '#4ADE80';
+ctx.fillRect(drawX, this.y, this.width, 20);
+// Dirt body
+ctx.fillStyle = '#8B4513';
+ctx.fillRect(drawX, this.y + 20, this.width, this.height - 20);
+
+// Grass details
+ctx.fillStyle = '#22C55E';
+for (let i = 0; i < this.width; i += 20) {
+ctx.beginPath();
+ctx.moveTo(drawX + i, this.y);
+ctx.lineTo(drawX + i + 10, this.y - 10);
+ctx.lineTo(drawX + i + 20, this.y);
+ctx.fill();
+}
+} else if (this.type === 'cloud') {
+ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+ctx.beginPath();
+ctx.arc(drawX + 30, this.y + 20, 25, 0, Math.PI * 2);
+ctx.arc(drawX + 70, this.y + 20, 30, 0, Math.PI * 2);
+ctx.arc(drawX + 110, this.y + 20, 25, 0, Math.PI * 2);
+ctx.fill();
+} else {
+ctx.fillStyle = '#A0A0A0';
+ctx.fillRect(drawX, this.y, this.width, this.height);
+}
+}
+}
+
+class Enemy {
+constructor(x, y, type) {
+this.x = x;
+this.y = y;
+this.width = 35;
+this.height = 35;
+this.type = type;
+this.velocityX = type === 'soda' ? 2 : -1.5;
+this.patrolStart = x;
+this.patrolDistance = 150;
+}
+
+update() {
+this.x += this.velocityX;
+
+// Patrol back and forth
+if (this.x > this.patrolStart + this.patrolDistance ||
+this.x < this.patrolStart - this.patrolDistance) {
+this.velocityX *= -1;
+}
+}
+
+draw() {
+const drawX = this.x - cameraX;
+
+ctx.save();
+ctx.translate(drawX + this.width/2, this.y + this.height/2);
+
+// Draw different sugar monsters
+const emojis = {
+'candy': '🍭',
+'chocolate': '🍫',
+'soda': '🥤',
+'gummy': '🍬',
+'cookie': '🍪'
+};
+
+ctx.font = '30px Arial';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText(emojis[this.type] || '👾', 0, 0);
+
+ctx.restore();
+}
+}
+
+class Collectible {
+constructor(x, y) {
+this.x = x;
+this.y = y;
+this.width = 30;
+this.height = 30;
+this.collected = false;
+this.bobOffset = 0;
+}
+
+update() {
+this.bobOffset = Math.sin(Date.now() / 200) * 5;
+}
+
+draw() {
+if (this.collected) return;
+
+const drawX = this.x - cameraX;
+const drawY = this.y + this.bobOffset;
+
+ctx.save();
+ctx.translate(drawX + this.width/2, drawY + this.height/2);
+
+// Toothbrush collectible
+ctx.font = '25px Arial';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+
+// Glow effect
+ctx.shadowColor = '#FFD700';
+ctx.shadowBlur = 10;
+ctx.fillText('🪥', 0, 0);
+
+ctx.restore();
+}
+}
+
+class Particle {
+constructor(x, y, color) {
+this.x = x;
+this.y = y;
+this.velocityX = (Math.random() - 0.5) * 4;
+this.velocityY = (Math.random() - 0.5) * 4;
+this.life = 30;
+this.color = color;
+this.size = Math.random() * 5 + 2;
+}
+
+update() {
+this.x += this.velocityX;
+this.y += this.velocityY;
+this.velocityY += 0.2; // Gravity
+this.life--;
+}
+
+draw() {
+const drawX = this.x - cameraX;
+ctx.fillStyle = this.color;
+ctx.globalAlpha = this.life / 30;
+ctx.fillRect(drawX, this.y, this.size, this.size);
+ctx.globalAlpha = 1;
+}
+}
+
+// Game arrays
+let player;
+let platforms = [];
+let enemies = [];
+let collectibles = [];
+let particles = [];
+
+// Tips
+const tips = [
+"💡 Brush for 2 minutes, twice a day!",
+"💡 Don't forget to floss between teeth!",
+"💡 Limit sugary snacks to protect enamel!",
+"💡 Visit your dentist every 6 months!",
+"💡 Drink water after eating sweets!"
+];
+
+function showTip() {
+const tipBox = document.getElementById('tip-box');
+tipBox.textContent = tips[Math.floor(Math.random() * tips.length)];
+tipBox.classList.add('show');
+setTimeout(() => tipBox.classList.remove('show'), 4000);
+}
+
+function initLevel() {
+// Create player
+player = new Player(100, 300);
+
+// Create platforms (level design)
+platforms = [
+// Starting platform
+new Platform(0, 400, 300, 200, 'grass'),
+
+// Gap jump
+new Platform(400, 350, 150, 40, 'grass'),
+
+// Higher platform
+new Platform(600, 250, 150, 40, 'grass'),
+
+// Moving cloud platform
+new Platform(800, 200, 120, 30, 'cloud'),
+
+// Lower section
+new Platform(1000, 400, 200, 40, 'grass'),
+
+// Stair step
+new Platform(1250, 300, 100, 40, 'grass'),
+new Platform(1400, 200, 100, 40, 'grass'),
+
+// Final platform
+new Platform(1600, 300, 400, 300, 'grass'),
+
+// Ground for falling
+new Platform(-200, 550, 3000, 100, 'grass')
+];
+
+// Create enemies
+enemies = [
+new Enemy(450, 315, 'candy'),
+new Enemy(650, 215, 'chocolate'),
+new Enemy(1100, 365, 'soda'),
+new Enemy(1300, 265, 'gummy'),
+new Enemy(1700, 265, 'cookie')
+];
+
+// Create collectibles (toothbrushes)
+collectibles = [
+new Collectible(450, 280),
+new Collectible(650, 180),
+new Collectible(1050, 350),
+new Collectible(1450, 150),
+new Collectible(1800, 230)
+];
+
+particles = [];
+}
+
+function createParticles(x, y, color, count = 5) {
+for (let i = 0; i < count; i++) {
+particles.push(new Particle(x, y, color));
+}
+}
+
+function takeDamage() {
+if (player.invincible) return;
+
+health--;
+updateHearts();
+
+player.invincible = true;
+player.invincibleTime = 120; // 2 seconds at 60fps
+
+createParticles(player.x + player.width/2, player.y + player.height/2, '#FF0000', 10);
+
+if (health <= 0) {
+gameOver();
+}
+}
+
+function updateHearts() {
+const heartsContainer = document.getElementById('hearts');
+heartsContainer.innerHTML = '❤️'.repeat(health) + '🖤'.repeat(3 - health);
+}
+
+function updateScore() {
+document.getElementById('score').textContent = score;
+}
+
+function checkCollisions() {
+// Check enemy collisions
+enemies.forEach(enemy => {
+if (player.checkCollision(enemy)) {
+// Check if jumping on top
+if (player.velocityY > 0 && player.y + player.height < enemy.y + enemy.height/2) {
+// Defeat enemy
+enemy.x = -1000; // Remove from game
+player.velocityY = -8; // Bounce
+score++;
+updateScore();
+createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FFD700', 8);
+showTip();
+
+if (score >= 5) {
+winGame();
+}
+} else {
+takeDamage();
+}
+}
+});
+
+// Check collectible collisions
+collectibles.forEach(collectible => {
+if (!collectible.collected && player.checkCollision(collectible)) {
+collectible.collected = true;
+score++;
+updateScore();
+createParticles(collectible.x + collectible.width/2, collectible.y + collectible.height/2, '#00FF00', 6);
+showTip();
+
+if (score >= 5) {
+winGame();
+}
+}
+});
+}
+
+function updateCamera() {
+// Center camera on player
+cameraX = player.x - GAME_WIDTH / 3;
+
+// Clamp camera
+if (cameraX < 0) cameraX = 0;
+if (cameraX > 2000 - GAME_WIDTH) cameraX = 2000 - GAME_WIDTH;
+}
+
+function drawBackground() {
+// Draw clouds
+ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+for (let i = 0; i < 5; i++) {
+const x = (i * 300 - cameraX * 0.3) % (GAME_WIDTH + 300) - 50;
+const y = 50 + i * 30;
+ctx.beginPath();
+ctx.arc(x, y, 40, 0, Math.PI * 2);
+ctx.arc(x + 50, y, 50, 0, Math.PI * 2);
+ctx.arc(x + 100, y, 40, 0, Math.PI * 2);
+ctx.fill();
+}
+}
+
+function gameLoop() {
+if (!gameRunning) return;
+
+// Clear canvas
+ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+// Draw background
+drawBackground();
+
+// Update game objects
+player.update();
+enemies.forEach(enemy => enemy.update());
+collectibles.forEach(collectible => collectible.update());
+particles.forEach((particle, index) => {
+particle.update();
+if (particle.life <= 0) particles.splice(index, 1);
+});
+
+// Check collisions
+checkCollisions();
+
+// Update camera
+updateCamera();
+
+// Draw everything
+platforms.forEach(platform => platform.draw());
+collectibles.forEach(collectible => collectible.draw());
+enemies.forEach(enemy => enemy.draw());
+player.draw();
+particles.forEach(particle => particle.draw());
+
+requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+document.getElementById('start-screen').classList.add('hidden');
+score = 0;
+health = 3;
+updateScore();
+updateHearts();
+initLevel();
+gameRunning = true;
+gameLoop();
+}
+
+function gameOver() {
+gameRunning = false;
+document.getElementById('game-over-screen').classList.remove('hidden');
+}
+
+function winGame() {
+gameRunning = false;
+document.getElementById('final-score').textContent =
+`Collected ${score}/5 toothbrushes with ${health} hearts remaining!`;
+document.getElementById('win-screen').classList.remove('hidden');
+}
+
+function resetGame() {
+document.getElementById('game-over-screen').classList.add('hidden');
+document.getElementById('win-screen').classList.add('hidden');
+startGame();
+}
+</script>
+</body>
+</html>
