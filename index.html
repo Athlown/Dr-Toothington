@@ -3,36 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dr. Toothington - Dental Platformer</title>
+<title>Dr. Toothington - Dental Adventure</title>
 <style>
 * {
 margin: 0;
 padding: 0;
 box-sizing: border-box;
 touch-action: none;
+user-select: none;
+-webkit-user-select: none;
+-webkit-touch-callout: none;
 }
 
 body {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+background: #1a1a2e;
 display: flex;
 justify-content: center;
 align-items: center;
 min-height: 100vh;
-font-family: 'Comic Sans MS', cursive, sans-serif;
+font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
 overflow: hidden;
+position: fixed;
+width: 100%;
+height: 100%;
+}
+
+#game-wrapper {
+position: relative;
+width: 100%;
+height: 100%;
+max-width: 100vw;
+max-height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
 #game-container {
 position: relative;
-box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-border-radius: 15px;
-overflow: hidden;
+width: 100%;
+height: 100%;
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
 canvas {
 display: block;
 background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #98FB98 100%);
-border-radius: 15px;
+max-width: 100%;
+max-height: 100%;
+object-fit: contain;
 }
 
 #ui-layer {
@@ -42,136 +63,303 @@ left: 0;
 width: 100%;
 height: 100%;
 pointer-events: none;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
 }
 
-.score-board {
-position: absolute;
-top: 10px;
-left: 10px;
-background: rgba(255,255,255,0.9);
-padding: 10px 15px;
-border-radius: 20px;
-font-size: 18px;
+.hud-top {
+display: flex;
+justify-content: space-between;
+padding: 10px;
+gap: 10px;
+}
+
+.hud-item {
+background: rgba(255,255,255,0.95);
+padding: 8px 12px;
+border-radius: 15px;
 font-weight: bold;
 color: #4a5568;
 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.health-display {
-position: absolute;
-top: 10px;
-right: 10px;
+font-size: 14px;
 display: flex;
+align-items: center;
 gap: 5px;
 }
 
-.heart {
-font-size: 24px;
-filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+.hearts {
+display: flex;
+gap: 3px;
 }
 
-.controls {
+.heart {
+font-size: 20px;
+}
+
+.level-indicator {
+position: absolute;
+top: 50px;
+left: 50%;
+transform: translateX(-50%);
+background: linear-gradient(135deg, #FFD700, #FFA500);
+color: white;
+padding: 6px 15px;
+border-radius: 15px;
+font-weight: bold;
+font-size: 14px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+white-space: nowrap;
+}
+
+.progress-bar {
+position: absolute;
+top: 85px;
+left: 50%;
+transform: translateX(-50%);
+width: 200px;
+height: 12px;
+background: rgba(255,255,255,0.3);
+border-radius: 6px;
+overflow: hidden;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, #48bb78, #38a169);
+transition: width 0.3s ease;
+border-radius: 6px;
+}
+
+/* Touch Controls - Always visible on mobile */
+.touch-controls {
 position: absolute;
 bottom: 20px;
+left: 0;
 width: 100%;
 display: flex;
 justify-content: space-between;
 padding: 0 20px;
 pointer-events: auto;
+z-index: 100;
+}
+
+.d-pad {
+display: flex;
+gap: 15px;
 }
 
 .control-btn {
 width: 70px;
 height: 70px;
 border-radius: 50%;
-border: none;
-background: rgba(255,255,255,0.8);
-font-size: 30px;
+border: 3px solid rgba(255,255,255,0.8);
+background: rgba(102, 126, 234, 0.9);
+color: white;
+font-size: 28px;
 cursor: pointer;
 touch-action: manipulation;
-box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-transition: transform 0.1s;
 display: flex;
 align-items: center;
 justify-content: center;
-user-select: none;
+box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+transition: all 0.1s;
+-webkit-tap-highlight-color: transparent;
 }
 
-.control-btn:active {
+.control-btn:active, .control-btn.active {
 transform: scale(0.9);
-background: rgba(255,255,255,1);
+background: rgba(102, 126, 234, 1);
+border-color: white;
 }
 
-.d-pad {
-display: flex;
-gap: 10px;
+.btn-jump {
+background: rgba(72, 187, 120, 0.9);
 }
 
-#start-screen, #game-over-screen, #win-screen {
+.btn-jump:active, .btn-jump.active {
+background: rgba(72, 187, 120, 1);
+}
+
+/* Screens */
+.screen {
 position: absolute;
 top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background: rgba(0,0,0,0.8);
 display: flex;
 flex-direction: column;
 justify-content: center;
 align-items: center;
-color: white;
 pointer-events: auto;
 z-index: 10;
+padding: 20px;
 }
 
-.hidden {
-display: none !important;
+#start-screen {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#game-over-screen {
+background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+display: none;
+}
+
+#win-screen {
+background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+display: none;
+}
+
+#quiz-screen {
+background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+display: none;
+}
+
+#level-complete-screen {
+background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+display: none;
 }
 
 h1 {
-font-size: 2.5em;
-margin-bottom: 20px;
+font-size: 8vw;
+color: white;
 text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+text-align: center;
+margin-bottom: 5px;
+}
+
+.subtitle {
+color: rgba(255,255,255,0.9);
+font-size: 4vw;
+margin-bottom: 20px;
 text-align: center;
 }
 
 .tooth-icon {
-font-size: 80px;
-margin: 20px;
-animation: bounce 1s infinite;
+font-size: 15vw;
+margin: 10px;
+animation: float 3s ease-in-out infinite;
+filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
 }
 
-@keyframes bounce {
+@keyframes float {
 0%, 100% { transform: translateY(0); }
-50% { transform: translateY(-20px); }
+50% { transform: translateY(-15px); }
 }
 
-.btn-start {
+.btn-primary {
 padding: 15px 40px;
-font-size: 1.3em;
-background: linear-gradient(135deg, #48bb78, #38a169);
-color: white;
+font-size: 5vw;
+background: white;
+color: #667eea;
 border: none;
 border-radius: 30px;
 cursor: pointer;
-font-family: inherit;
 font-weight: bold;
-box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-transition: transform 0.2s;
+box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 margin-top: 20px;
+touch-action: manipulation;
 }
 
-.btn-start:hover {
-transform: scale(1.05);
+.btn-primary:active {
+transform: scale(0.95);
 }
 
 .instructions {
-background: rgba(255,255,255,0.1);
+background: rgba(255,255,255,0.95);
 padding: 20px;
 border-radius: 15px;
-margin: 20px;
+margin: 15px;
+max-width: 90%;
+text-align: center;
+color: #4a5568;
+font-size: 3.5vw;
+}
+
+.instructions h3 {
+color: #667eea;
+margin-bottom: 10px;
+font-size: 4.5vw;
+}
+
+.instructions p {
+margin: 5px 0;
+line-height: 1.4;
+}
+
+.quiz-container {
+background: white;
+padding: 25px;
+border-radius: 20px;
+width: 90%;
 max-width: 400px;
 text-align: center;
-line-height: 1.6;
+}
+
+.quiz-question {
+font-size: 4.5vw;
+color: #2d3748;
+margin-bottom: 20px;
+font-weight: bold;
+line-height: 1.4;
+}
+
+.quiz-options {
+display: grid;
+gap: 10px;
+}
+
+.quiz-btn {
+padding: 12px;
+font-size: 4vw;
+border: 2px solid #e2e8f0;
+background: white;
+border-radius: 10px;
+cursor: pointer;
+font-weight: bold;
+color: #4a5568;
+touch-action: manipulation;
+}
+
+.quiz-btn:active {
+background: #f7fafc;
+border-color: #667eea;
+}
+
+.quiz-btn.correct {
+background: #48bb78;
+color: white;
+border-color: #48bb78;
+}
+
+.quiz-btn.wrong {
+background: #f56565;
+color: white;
+border-color: #f56565;
+}
+
+.certificate {
+background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+border: 3px solid #fdcb6e;
+border-radius: 15px;
+padding: 20px;
+margin: 10px;
+color: #2d3436;
+text-align: center;
+width: 90%;
+max-width: 350px;
+}
+
+.certificate h2 {
+color: #d63031;
+margin-bottom: 10px;
+font-size: 5vw;
+}
+
+.stars {
+font-size: 10vw;
+margin: 10px 0;
 }
 
 .tip-box {
@@ -179,145 +367,334 @@ position: absolute;
 bottom: 100px;
 left: 50%;
 transform: translateX(-50%);
-background: rgba(255, 248, 220, 0.95);
+background: rgba(255, 248, 220, 0.98);
 color: #744210;
-padding: 15px 20px;
+padding: 12px 20px;
 border-radius: 10px;
 border: 2px solid #f6ad55;
-font-size: 14px;
-max-width: 300px;
+font-size: 3.5vw;
+max-width: 80%;
 text-align: center;
 opacity: 0;
-transition: opacity 0.5s;
+transition: opacity 0.3s;
 pointer-events: none;
+font-weight: bold;
 }
 
 .tip-box.show {
 opacity: 1;
 }
 
+.sound-toggle {
+position: absolute;
+top: 10px;
+right: 10px;
+background: rgba(255,255,255,0.9);
+border: none;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+font-size: 20px;
+cursor: pointer;
+z-index: 20;
+pointer-events: auto;
+}
+
+/* Desktop adjustments */
 @media (min-width: 768px) {
-.controls {
-display: none;
+h1 { font-size: 48px; }
+.subtitle { font-size: 20px; }
+.tooth-icon { font-size: 100px; }
+.btn-primary { font-size: 24px; }
+.instructions { font-size: 16px; }
+.instructions h3 { font-size: 20px; }
+.quiz-question { font-size: 18px; }
+.quiz-btn { font-size: 16px; }
+.certificate h2 { font-size: 24px; }
+.tip-box { font-size: 14px; }
+.control-btn { width: 60px; height: 60px; font-size: 24px; }
+}
+
+/* Hide touch controls on desktop if mouse detected */
+@media (hover: hover) and (pointer: fine) {
+.touch-controls {
+opacity: 0.3;
+}
+.touch-controls:hover {
+opacity: 1;
 }
 }
 </style>
 </head>
 <body>
+<div id="game-wrapper">
 <div id="game-container">
 <canvas id="gameCanvas"></canvas>
 
 <div id="ui-layer">
-<div class="score-board">
-🪥 <span id="score">0</span>/5
+<button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+
+<div class="hud-top">
+<div class="hud-item">
+<span>🪥</span>
+<span id="score">0</span>/<span id="target">5</span>
 </div>
-<div class="health-display" id="hearts">
+<div class="hud-item">
+<span>🏆</span>
+<span id="current-score">0</span>
+</div>
+<div class="hearts" id="hearts">
 <span class="heart">❤️</span>
 <span class="heart">❤️</span>
 <span class="heart">❤️</span>
+</div>
+</div>
+
+<div class="level-indicator" id="level-indicator">Level 1: Dental Clinic</div>
+
+<div class="progress-bar">
+<div class="progress-fill" id="progress-fill" style="width: 0%"></div>
 </div>
 
 <div class="tip-box" id="tip-box"></div>
 
-<div class="controls">
+<!-- Touch Controls - Fixed positioning -->
+<div class="touch-controls" id="touchControls">
 <div class="d-pad">
-<button class="control-btn" id="btn-left">⬅️</button>
-<button class="control-btn" id="btn-right">➡️</button>
+<button class="control-btn" id="btnLeft">⬅️</button>
+<button class="control-btn" id="btnRight">➡️</button>
 </div>
-<button class="control-btn" id="btn-jump">⬆️</button>
+<button class="control-btn btn-jump" id="btnJump">⬆️</button>
 </div>
 </div>
 
-<div id="start-screen">
+<!-- Start Screen -->
+<div id="start-screen" class="screen">
 <div class="tooth-icon">🦷</div>
 <h1>Dr. Toothington</h1>
+<div class="subtitle">Game by: Dr Abdullah Alzaid</div>
 <div class="instructions">
-<p>🎮 <strong>How to Play:</strong></p>
+<h3>🎮 How to Play</h3>
 <p>⬅️ ➡️ Move | ⬆️ Jump</p>
-<p>🪥 Collect 5 toothbrushes</p>
-<p>⚡ Jump on sugar monsters to defeat them</p>
-<p>🚫 Don't fall or touch monsters from the side!</p>
+<p>🪥 Collect toothbrushes</p>
+<p>⚡ Jump on sugar monsters</p>
+<p>❓ Answer dental quizzes</p>
+<p>🏆 Beat all 3 levels!</p>
 </div>
-<button class="btn-start" onclick="startGame()">Start Adventure!</button>
+<button class="btn-primary" onclick="startGame()">Start Adventure!</button>
 </div>
 
-<div id="game-over-screen" class="hidden">
+<!-- Quiz Screen -->
+<div id="quiz-screen" class="screen">
+<div class="quiz-container">
+<div style="font-size: 40px; margin-bottom: 10px;">🤔</div>
+<div class="quiz-question" id="quiz-question">Question?</div>
+<div class="quiz-options" id="quiz-options"></div>
+</div>
+</div>
+
+<!-- Level Complete Screen -->
+<div id="level-complete-screen" class="screen">
+<div class="tooth-icon">🎉</div>
+<h1>Level Complete!</h1>
+<div style="color: white; font-size: 18px; margin: 10px;" id="level-score">Score: 0</div>
+<button class="btn-primary" id="nextLevelBtn" onclick="nextLevel()">Next Level!</button>
+</div>
+
+<!-- Game Over Screen -->
+<div id="game-over-screen" class="screen">
 <div class="tooth-icon">😭</div>
 <h1>Game Over!</h1>
-<p style="font-size: 1.2em; margin: 10px;">Timmy got cavities!</p>
-<button class="btn-start" onclick="resetGame()">Try Again</button>
+<div style="color: white; font-size: 18px; margin: 10px;" id="final-score-gameover">Score: 0</div>
+<button class="btn-primary" onclick="resetGame()">Try Again</button>
 </div>
 
-<div id="win-screen" class="hidden">
-<div class="tooth-icon">✨</div>
+<!-- Win Screen -->
+<div id="win-screen" class="screen">
+<div class="tooth-icon">🏆</div>
 <h1>You Win!</h1>
-<p style="font-size: 1.2em; margin: 10px;">Timmy is sparkling clean!</p>
-<div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; margin: 20px; text-align: center;">
-<p>🏆 Dental Hero Certificate 🏆</p>
-<p id="final-score" style="margin-top: 10px;"></p>
+<div class="stars" id="final-stars">⭐⭐⭐</div>
+<div class="certificate">
+<h2>🏆 Dental Hero Certificate 🏆</h2>
+<p id="certificate-text" style="font-weight: bold; margin: 10px 0;">Completed all levels!</p>
+<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 10px; margin: 10px 0; font-weight: bold;" id="final-high-score">High Score: 0</div>
+<p style="margin-top: 10px; font-size: 14px; color: #d63031; font-weight: bold;">
+Remember: Brush twice, floss once, smile always!
+</p>
 </div>
-<button class="btn-start" onclick="resetGame()">Play Again</button>
+<button class="btn-primary" onclick="resetGame()">Play Again</button>
+</div>
 </div>
 </div>
 
 <script>
+// Audio
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = new AudioContext();
+let soundEnabled = true;
+
+function toggleSound() {
+soundEnabled = !soundEnabled;
+document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+}
+
+function playSound(type) {
+if (!soundEnabled) return;
+if (audioCtx.state === 'suspended') audioCtx.resume();
+
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+switch(type) {
+case 'jump':
+osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+osc.start();
+osc.stop(audioCtx.currentTime + 0.1);
+break;
+case 'collect':
+osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+osc.start();
+osc.stop(audioCtx.currentTime + 0.2);
+break;
+case 'enemy':
+osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
+gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+osc.start();
+osc.stop(audioCtx.currentTime + 0.15);
+break;
+case 'damage':
+osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.2);
+gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+osc.start();
+osc.stop(audioCtx.currentTime + 0.2);
+break;
+case 'win':
+[523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+const o = audioCtx.createOscillator();
+const g = audioCtx.createGain();
+o.connect(g);
+g.connect(audioCtx.destination);
+o.frequency.value = freq;
+g.gain.setValueAtTime(0.3, audioCtx.currentTime + i * 0.1);
+g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
+o.start(audioCtx.currentTime + i * 0.1);
+o.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+});
+break;
+}
+}
+
+// Canvas setup
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Game dimensions
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 600;
+// Game dimensions - responsive
+let GAME_WIDTH = 800;
+let GAME_HEIGHT = 600;
+let scale = 1;
 
-// Set canvas size
-function resizeCanvas() {
-const maxWidth = Math.min(window.innerWidth - 20, 800);
-const maxHeight = Math.min(window.innerHeight - 20, 600);
-const scale = Math.min(maxWidth / GAME_WIDTH, maxHeight / GAME_HEIGHT);
+function resize() {
+const wrapper = document.getElementById('game-wrapper');
+const aspect = GAME_WIDTH / GAME_HEIGHT;
+const windowAspect = window.innerWidth / window.innerHeight;
+
+let newWidth, newHeight;
+
+if (windowAspect > aspect) {
+newHeight = Math.min(window.innerHeight * 0.9, GAME_HEIGHT);
+newWidth = newHeight * aspect;
+} else {
+newWidth = Math.min(window.innerWidth * 0.95, GAME_WIDTH);
+newHeight = newWidth / aspect;
+}
 
 canvas.width = GAME_WIDTH;
 canvas.height = GAME_HEIGHT;
-canvas.style.width = (GAME_WIDTH * scale) + 'px';
-canvas.style.height = (GAME_HEIGHT * scale) + 'px';
+canvas.style.width = newWidth + 'px';
+canvas.style.height = newHeight + 'px';
+
+scale = newWidth / GAME_WIDTH;
 }
 
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+resize();
+window.addEventListener('resize', resize);
 
 // Game state
 let gameRunning = false;
 let score = 0;
+let totalScore = 0;
 let health = 3;
 let cameraX = 0;
+let currentLevel = 1;
+let highScore = localStorage.getItem('drToothingtonHighScore') || 0;
 
-// Input handling
-const keys = {
-left: false,
-right: false,
-up: false
-};
+// Input
+const keys = { left: false, right: false, up: false };
 
-// Touch controls
-const btnLeft = document.getElementById('btn-left');
-const btnRight = document.getElementById('btn-right');
-const btnJump = document.getElementById('btn-jump');
-
+// Touch control setup - improved for mobile
 function setupTouchControls() {
-const addTouch = (btn, key) => {
-btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
-btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
-btn.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
-btn.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
-btn.addEventListener('mouseleave', (e) => { e.preventDefault(); keys[key] = false; });
+const btnLeft = document.getElementById('btnLeft');
+const btnRight = document.getElementById('btnRight');
+const btnJump = document.getElementById('btnJump');
+
+const handleTouch = (btn, key, e) => {
+e.preventDefault();
+e.stopPropagation();
+keys[key] = true;
+btn.classList.add('active');
 };
 
-addTouch(btnLeft, 'left');
-addTouch(btnRight, 'right');
-addTouch(btnJump, 'up');
+const handleRelease = (btn, key, e) => {
+if (e) {
+e.preventDefault();
+e.stopPropagation();
+}
+keys[key] = false;
+btn.classList.remove('active');
+};
+
+// Touch events
+btnLeft.addEventListener('touchstart', (e) => handleTouch(btnLeft, 'left', e), {passive: false});
+btnLeft.addEventListener('touchend', (e) => handleRelease(btnLeft, 'left', e), {passive: false});
+btnLeft.addEventListener('touchcancel', (e) => handleRelease(btnLeft, 'left', e), {passive: false});
+
+btnRight.addEventListener('touchstart', (e) => handleTouch(btnRight, 'right', e), {passive: false});
+btnRight.addEventListener('touchend', (e) => handleRelease(btnRight, 'right', e), {passive: false});
+btnRight.addEventListener('touchcancel', (e) => handleRelease(btnRight, 'right', e), {passive: false});
+
+btnJump.addEventListener('touchstart', (e) => handleTouch(btnJump, 'up', e), {passive: false});
+btnJump.addEventListener('touchend', (e) => handleRelease(btnJump, 'up', e), {passive: false});
+btnJump.addEventListener('touchcancel', (e) => handleRelease(btnJump, 'up', e), {passive: false});
+
+// Mouse events for testing
+btnLeft.addEventListener('mousedown', (e) => handleTouch(btnLeft, 'left', e));
+btnLeft.addEventListener('mouseup', (e) => handleRelease(btnLeft, 'left', e));
+btnLeft.addEventListener('mouseleave', () => handleRelease(btnLeft, 'left'));
+
+btnRight.addEventListener('mousedown', (e) => handleTouch(btnRight, 'right', e));
+btnRight.addEventListener('mouseup', (e) => handleRelease(btnRight, 'right', e));
+btnRight.addEventListener('mouseleave', () => handleRelease(btnRight, 'right'));
+
+btnJump.addEventListener('mousedown', (e) => handleTouch(btnJump, 'up', e));
+btnJump.addEventListener('mouseup', (e) => handleRelease(btnJump, 'up', e));
+btnJump.addEventListener('mouseleave', () => handleRelease(btnJump, 'up'));
 }
 
 setupTouchControls();
 
-// Keyboard controls
+// Keyboard
 window.addEventListener('keydown', (e) => {
 if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
 if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
@@ -330,15 +707,113 @@ if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
 if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') keys.up = false;
 });
 
-// Game objects
+// Game data
+const quizzes = [
+{question: "How long should you brush?", options: ["30 sec", "1 min", "2 min", "5 min"], correct: 2, tip: "Brush for 2 minutes, twice a day!"},
+{question: "What fights cavities?", options: ["Sugar", "Fluoride", "Soda", "Candy"], correct: 1, tip: "Fluoride strengthens enamel!"},
+{question: "How often floss?", options: ["Never", "Weekly", "Daily", "Monthly"], correct: 2, tip: "Floss once a day!"},
+{question: "Bad for teeth?", options: ["Water", "Milk", "Soda", "Vegetables"], correct: 2, tip: "Sugary drinks cause cavities!"},
+{question: "Dentist visits?", options: ["When hurt", "6 months", "Yearly", "Never"], correct: 1, tip: "Visit every 6 months!"}
+];
+
+const levels = [
+{
+name: "Dental Clinic",
+bg: ["#87CEEB", "#E0F6FF", "#98FB98"],
+platforms: [
+{x: 0, y: 450, w: 300, h: 150},
+{x: 350, y: 380, w: 150, h: 40},
+{x: 550, y: 300, w: 150, h: 40},
+{x: 750, y: 220, w: 120, h: 40, type: 'cloud'},
+{x: 950, y: 350, w: 200, h: 40},
+{x: 1200, y: 280, w: 150, h: 40},
+{x: 1450, y: 200, w: 150, h: 40},
+{x: 1700, y: 350, w: 400, h: 250}
+],
+enemies: [
+{x: 400, y: 345, type: 'candy'},
+{x: 600, y: 265, type: 'chocolate'},
+{x: 1050, y: 315, type: 'soda'},
+{x: 1300, y: 245, type: 'gummy'},
+{x: 1800, y: 315, type: 'cookie'}
+],
+collectibles: [
+{x: 400, y: 320}, {x: 600, y: 240}, {x: 1000, y: 300},
+{x: 1500, y: 150}, {x: 1900, y: 280}
+],
+target: 5
+},
+{
+name: "Candy Land",
+bg: ["#FFB6C1", "#FFC0CB", "#FFE4E1"],
+platforms: [
+{x: 0, y: 450, w: 250, h: 150},
+{x: 300, y: 400, w: 100, h: 40},
+{x: 450, y: 320, w: 100, h: 40},
+{x: 600, y: 250, w: 100, h: 40},
+{x: 750, y: 350, w: 150, h: 40},
+{x: 950, y: 280, w: 100, h: 40},
+{x: 1100, y: 200, w: 100, h: 40},
+{x: 1300, y: 300, w: 200, h: 40},
+{x: 1600, y: 400, w: 500, h: 200}
+],
+enemies: [
+{x: 320, y: 365, type: 'candy'},
+{x: 470, y: 285, type: 'chocolate'},
+{x: 620, y: 215, type: 'soda'},
+{x: 800, y: 315, type: 'gummy'},
+{x: 1150, y: 165, type: 'cookie'},
+{x: 1400, y: 265, type: 'candy'}
+],
+collectibles: [
+{x: 320, y: 340}, {x: 470, y: 260}, {x: 620, y: 190},
+{x: 800, y: 310}, {x: 1120, y: 160}, {x: 1700, y: 350}
+],
+target: 6
+},
+{
+name: "Bathroom Battle",
+bg: ["#B0E0E6", "#E0FFFF", "#F0F8FF"],
+platforms: [
+{x: 0, y: 450, w: 200, h: 150},
+{x: 250, y: 380, w: 120, h: 40},
+{x: 420, y: 300, w: 100, h: 40},
+{x: 580, y: 380, w: 150, h: 40},
+{x: 800, y: 250, w: 100, h: 40},
+{x: 950, y: 320, w: 120, h: 40},
+{x: 1150, y: 200, w: 100, h: 40},
+{x: 1350, y: 280, w: 150, h: 40},
+{x: 1600, y: 350, w: 100, h: 40},
+{x: 1800, y: 450, w: 400, h: 150}
+],
+enemies: [
+{x: 280, y: 345, type: 'candy'},
+{x: 440, y: 265, type: 'chocolate'},
+{x: 630, y: 345, type: 'soda'},
+{x: 820, y: 215, type: 'gummy'},
+{x: 1000, y: 285, type: 'cookie'},
+{x: 1180, y: 165, type: 'candy'},
+{x: 1400, y: 245, type: 'chocolate'},
+{x: 1650, y: 315, type: 'soda'}
+],
+collectibles: [
+{x: 280, y: 320}, {x: 440, y: 240}, {x: 630, y: 320},
+{x: 820, y: 210}, {x: 1180, y: 160}, {x: 1400, y: 240},
+{x: 1900, y: 400}
+],
+target: 7
+}
+];
+
+// Classes
 class Player {
 constructor(x, y) {
 this.x = x;
 this.y = y;
-this.width = 40;
-this.height = 40;
-this.velocityX = 0;
-this.velocityY = 0;
+this.width = 35;
+this.height = 35;
+this.vx = 0;
+this.vy = 0;
 this.speed = 5;
 this.jumpPower = -12;
 this.gravity = 0.5;
@@ -346,67 +821,58 @@ this.grounded = false;
 this.facingRight = true;
 this.invincible = false;
 this.invincibleTime = 0;
+this.anim = 0;
 }
 
 update() {
-// Horizontal movement
+this.anim++;
+
 if (keys.left) {
-this.velocityX = -this.speed;
+this.vx = -this.speed;
 this.facingRight = false;
 } else if (keys.right) {
-this.velocityX = this.speed;
+this.vx = this.speed;
 this.facingRight = true;
 } else {
-this.velocityX *= 0.8; // Friction
+this.vx *= 0.8;
 }
 
-// Jump
 if (keys.up && this.grounded) {
-this.velocityY = this.jumpPower;
+this.vy = this.jumpPower;
 this.grounded = false;
-createParticles(this.x + this.width/2, this.y + this.height, '#8B4513');
+playSound('jump');
+createParticles(this.x + this.width/2, this.y + this.height, '#8B4513', 6);
 }
 
-// Apply gravity
-this.velocityY += this.gravity;
+this.vy += this.gravity;
+this.x += this.vx;
+this.y += this.vy;
 
-// Update position
-this.x += this.velocityX;
-this.y += this.velocityY;
-
-// Invincibility frames
 if (this.invincible) {
 this.invincibleTime--;
 if (this.invincibleTime <= 0) this.invincible = false;
 }
 
-// Check platform collisions
 this.grounded = false;
-platforms.forEach(platform => {
-if (this.checkCollision(platform)) {
-// Landing on top
-if (this.velocityY > 0 && this.y < platform.y) {
-this.y = platform.y - this.height;
-this.velocityY = 0;
+platforms.forEach(p => {
+if (this.checkCollision(p)) {
+if (this.vy > 0 && this.y < p.y) {
+this.y = p.y - this.height;
+this.vy = 0;
 this.grounded = true;
-}
-// Hitting from below
-else if (this.velocityY < 0 && this.y > platform.y) {
-this.y = platform.y + platform.height;
-this.velocityY = 0;
-}
-// Side collisions
-else if (this.velocityX > 0) {
-this.x = platform.x - this.width;
-this.velocityX = 0;
-} else if (this.velocityX < 0) {
-this.x = platform.x + platform.width;
-this.velocityX = 0;
+} else if (this.vy < 0 && this.y > p.y) {
+this.y = p.y + p.height;
+this.vy = 0;
+} else if (this.vx > 0) {
+this.x = p.x - this.width;
+this.vx = 0;
+} else if (this.vx < 0) {
+this.x = p.x + p.width;
+this.vx = 0;
 }
 }
 });
 
-// Fall off screen
 if (this.y > GAME_HEIGHT + 100) {
 takeDamage();
 this.respawn();
@@ -423,29 +889,32 @@ this.y + this.height > obj.y;
 respawn() {
 this.x = 100;
 this.y = 300;
-this.velocityX = 0;
-this.velocityY = 0;
+this.vx = 0;
+this.vy = 0;
 }
 
 draw() {
 ctx.save();
 
-// Blink if invincible
-if (this.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
+if (this.invincible && Math.floor(this.anim / 5) % 2 === 0) {
 ctx.globalAlpha = 0.5;
 }
 
-// Draw Dr. Toothington (cute tooth character)
-ctx.translate(this.x + this.width/2, this.y + this.height/2);
+const drawX = this.x - cameraX + this.width/2;
+const drawY = this.y + this.height/2;
+
+ctx.translate(drawX, drawY);
 if (!this.facingRight) ctx.scale(-1, 1);
 
-// Body (tooth shape)
+const bounce = Math.sin(this.anim * 0.1) * 2;
+
+// Tooth body
 ctx.fillStyle = '#FFFFFF';
 ctx.beginPath();
-ctx.moveTo(-15, -15);
-ctx.quadraticCurveTo(-20, 0, -15, 15);
-ctx.lineTo(15, 15);
-ctx.quadraticCurveTo(20, 0, 15, -15);
+ctx.moveTo(-12, -12 + bounce);
+ctx.quadraticCurveTo(-16, bounce, -12, 12 + bounce);
+ctx.lineTo(12, 12 + bounce);
+ctx.quadraticCurveTo(16, bounce, 12, -12 + bounce);
 ctx.closePath();
 ctx.fill();
 ctx.strokeStyle = '#DDD';
@@ -455,23 +924,21 @@ ctx.stroke();
 // Eyes
 ctx.fillStyle = '#000';
 ctx.beginPath();
-ctx.arc(-5, -5, 3, 0, Math.PI * 2);
-ctx.arc(8, -5, 3, 0, Math.PI * 2);
+ctx.arc(-4, -4 + bounce, 2.5, 0, Math.PI * 2);
+ctx.arc(6, -4 + bounce, 2.5, 0, Math.PI * 2);
 ctx.fill();
 
 // Smile
 ctx.beginPath();
-ctx.arc(0, 5, 8, 0, Math.PI);
-ctx.strokeStyle = '#000';
-ctx.lineWidth = 2;
+ctx.arc(0, 4 + bounce, 6, 0, Math.PI);
 ctx.stroke();
 
-// Toothbrush weapon
-if (score > 0) {
+// Toothbrush
+if (score > 0 || currentLevel > 1) {
 ctx.fillStyle = '#FF6B6B';
-ctx.fillRect(15, -5, 20, 4);
+ctx.fillRect(12, -4 + bounce, 16, 3);
 ctx.fillStyle = '#FFFFFF';
-ctx.fillRect(30, -8, 8, 10);
+ctx.fillRect(24, -6 + bounce, 6, 8);
 }
 
 ctx.restore();
@@ -479,45 +946,38 @@ ctx.restore();
 }
 
 class Platform {
-constructor(x, y, width, height, type = 'normal') {
+constructor(x, y, w, h, type) {
 this.x = x;
 this.y = y;
-this.width = width;
-this.height = height;
+this.width = w;
+this.height = h;
 this.type = type;
 }
 
 draw() {
-// Draw relative to camera
-const drawX = this.x - cameraX;
+const dx = this.x - cameraX;
 
-if (this.type === 'grass') {
-// Grass top
-ctx.fillStyle = '#4ADE80';
-ctx.fillRect(drawX, this.y, this.width, 20);
-// Dirt body
-ctx.fillStyle = '#8B4513';
-ctx.fillRect(drawX, this.y + 20, this.width, this.height - 20);
-
-// Grass details
-ctx.fillStyle = '#22C55E';
-for (let i = 0; i < this.width; i += 20) {
+if (this.type === 'cloud') {
+ctx.fillStyle = 'rgba(255,255,255,0.9)';
 ctx.beginPath();
-ctx.moveTo(drawX + i, this.y);
-ctx.lineTo(drawX + i + 10, this.y - 10);
-ctx.lineTo(drawX + i + 20, this.y);
-ctx.fill();
-}
-} else if (this.type === 'cloud') {
-ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-ctx.beginPath();
-ctx.arc(drawX + 30, this.y + 20, 25, 0, Math.PI * 2);
-ctx.arc(drawX + 70, this.y + 20, 30, 0, Math.PI * 2);
-ctx.arc(drawX + 110, this.y + 20, 25, 0, Math.PI * 2);
+ctx.arc(dx + 25, this.y + 15, 20, 0, Math.PI * 2);
+ctx.arc(dx + 60, this.y + 15, 25, 0, Math.PI * 2);
+ctx.arc(dx + 95, this.y + 15, 20, 0, Math.PI * 2);
 ctx.fill();
 } else {
-ctx.fillStyle = '#A0A0A0';
-ctx.fillRect(drawX, this.y, this.width, this.height);
+ctx.fillStyle = '#4ADE80';
+ctx.fillRect(dx, this.y, this.width, 15);
+ctx.fillStyle = '#8B4513';
+ctx.fillRect(dx, this.y + 15, this.width, this.height - 15);
+
+ctx.fillStyle = '#22C55E';
+for (let i = 0; i < this.width; i += 15) {
+ctx.beginPath();
+ctx.moveTo(dx + i, this.y);
+ctx.lineTo(dx + i + 7, this.y - 8);
+ctx.lineTo(dx + i + 15, this.y);
+ctx.fill();
+}
 }
 }
 }
@@ -526,40 +986,32 @@ class Enemy {
 constructor(x, y, type) {
 this.x = x;
 this.y = y;
-this.width = 35;
-this.height = 35;
+this.width = 30;
+this.height = 30;
 this.type = type;
-this.velocityX = type === 'soda' ? 2 : -1.5;
-this.patrolStart = x;
-this.patrolDistance = 150;
+this.vx = type === 'soda' ? 2 : -1.5;
+this.startX = x;
+this.range = 100;
+this.anim = 0;
 }
 
 update() {
-this.x += this.velocityX;
-
-// Patrol back and forth
-if (this.x > this.patrolStart + this.patrolDistance ||
-this.x < this.patrolStart - this.patrolDistance) {
-this.velocityX *= -1;
+this.anim++;
+this.x += this.vx;
+if (this.x > this.startX + this.range || this.x < this.startX - this.range) {
+this.vx *= -1;
 }
 }
 
 draw() {
-const drawX = this.x - cameraX;
+const dx = this.x - cameraX;
+const bounce = Math.sin(this.anim * 0.1) * 3;
 
 ctx.save();
-ctx.translate(drawX + this.width/2, this.y + this.height/2);
+ctx.translate(dx + this.width/2, this.y + this.height/2 + bounce);
 
-// Draw different sugar monsters
-const emojis = {
-'candy': '🍭',
-'chocolate': '🍫',
-'soda': '🥤',
-'gummy': '🍬',
-'cookie': '🍪'
-};
-
-ctx.font = '30px Arial';
+const emojis = {candy: '🍭', chocolate: '🍫', soda: '🥤', gummy: '🍬', cookie: '🍪'};
+ctx.font = '24px Arial';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 ctx.fillText(emojis[this.type] || '👾', 0, 0);
@@ -572,33 +1024,36 @@ class Collectible {
 constructor(x, y) {
 this.x = x;
 this.y = y;
-this.width = 30;
-this.height = 30;
+this.width = 25;
+this.height = 25;
 this.collected = false;
-this.bobOffset = 0;
+this.anim = 0;
 }
 
 update() {
-this.bobOffset = Math.sin(Date.now() / 200) * 5;
+this.anim++;
 }
 
 draw() {
 if (this.collected) return;
 
-const drawX = this.x - cameraX;
-const drawY = this.y + this.bobOffset;
+const dx = this.x - cameraX;
+const bob = Math.sin(this.anim * 0.05) * 6;
 
 ctx.save();
-ctx.translate(drawX + this.width/2, drawY + this.height/2);
+ctx.translate(dx + this.width/2, this.y + this.height/2 + bob);
 
-// Toothbrush collectible
-ctx.font = '25px Arial';
+const grad = ctx.createRadialGradient(0, 0, 3, 0, 0, 20);
+grad.addColorStop(0, 'rgba(255,215,0,0.8)');
+grad.addColorStop(1, 'rgba(255,215,0,0)');
+ctx.fillStyle = grad;
+ctx.beginPath();
+ctx.arc(0, 0, 20, 0, Math.PI * 2);
+ctx.fill();
+
+ctx.font = '22px Arial';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
-
-// Glow effect
-ctx.shadowColor = '#FFD700';
-ctx.shadowBlur = 10;
 ctx.fillText('🪥', 0, 0);
 
 ctx.restore();
@@ -609,194 +1064,193 @@ class Particle {
 constructor(x, y, color) {
 this.x = x;
 this.y = y;
-this.velocityX = (Math.random() - 0.5) * 4;
-this.velocityY = (Math.random() - 0.5) * 4;
+this.vx = (Math.random() - 0.5) * 5;
+this.vy = (Math.random() - 0.5) * 5;
 this.life = 30;
 this.color = color;
-this.size = Math.random() * 5 + 2;
+this.size = Math.random() * 4 + 2;
 }
 
 update() {
-this.x += this.velocityX;
-this.y += this.velocityY;
-this.velocityY += 0.2; // Gravity
+this.x += this.vx;
+this.y += this.vy;
+this.vy += 0.2;
 this.life--;
 }
 
 draw() {
-const drawX = this.x - cameraX;
-ctx.fillStyle = this.color;
+const dx = this.x - cameraX;
 ctx.globalAlpha = this.life / 30;
-ctx.fillRect(drawX, this.y, this.size, this.size);
+ctx.fillStyle = this.color;
+ctx.fillRect(dx, this.y, this.size, this.size);
 ctx.globalAlpha = 1;
 }
 }
 
-// Game arrays
-let player;
-let platforms = [];
-let enemies = [];
-let collectibles = [];
-let particles = [];
+let player, platforms = [], enemies = [], collectibles = [], particles = [];
 
-// Tips
-const tips = [
-"💡 Brush for 2 minutes, twice a day!",
-"💡 Don't forget to floss between teeth!",
-"💡 Limit sugary snacks to protect enamel!",
-"💡 Visit your dentist every 6 months!",
-"💡 Drink water after eating sweets!"
-];
-
-function showTip() {
-const tipBox = document.getElementById('tip-box');
-tipBox.textContent = tips[Math.floor(Math.random() * tips.length)];
-tipBox.classList.add('show');
-setTimeout(() => tipBox.classList.remove('show'), 4000);
+function createParticles(x, y, color, count) {
+for (let i = 0; i < count; i++) particles.push(new Particle(x, y, color));
 }
 
-function initLevel() {
-// Create player
+function showTip(msg) {
+const tip = document.getElementById('tip-box');
+tip.textContent = msg;
+tip.classList.add('show');
+setTimeout(() => tip.classList.remove('show'), 3000);
+}
+
+function initLevel(lvl) {
+const level = levels[lvl - 1];
+currentLevel = lvl;
+
 player = new Player(100, 300);
-
-// Create platforms (level design)
-platforms = [
-// Starting platform
-new Platform(0, 400, 300, 200, 'grass'),
-
-// Gap jump
-new Platform(400, 350, 150, 40, 'grass'),
-
-// Higher platform
-new Platform(600, 250, 150, 40, 'grass'),
-
-// Moving cloud platform
-new Platform(800, 200, 120, 30, 'cloud'),
-
-// Lower section
-new Platform(1000, 400, 200, 40, 'grass'),
-
-// Stair step
-new Platform(1250, 300, 100, 40, 'grass'),
-new Platform(1400, 200, 100, 40, 'grass'),
-
-// Final platform
-new Platform(1600, 300, 400, 300, 'grass'),
-
-// Ground for falling
-new Platform(-200, 550, 3000, 100, 'grass')
-];
-
-// Create enemies
-enemies = [
-new Enemy(450, 315, 'candy'),
-new Enemy(650, 215, 'chocolate'),
-new Enemy(1100, 365, 'soda'),
-new Enemy(1300, 265, 'gummy'),
-new Enemy(1700, 265, 'cookie')
-];
-
-// Create collectibles (toothbrushes)
-collectibles = [
-new Collectible(450, 280),
-new Collectible(650, 180),
-new Collectible(1050, 350),
-new Collectible(1450, 150),
-new Collectible(1800, 230)
-];
-
+platforms = level.platforms.map(p => new Platform(p.x, p.y, p.w, p.h, p.type));
+enemies = level.enemies.map(e => new Enemy(e.x, e.y, e.type));
+collectibles = level.collectibles.map(c => new Collectible(c.x, c.y));
 particles = [];
+score = 0;
+
+document.getElementById('target').textContent = level.target;
+document.getElementById('level-indicator').textContent = `Level ${lvl}: ${level.name}`;
+updateProgress();
 }
 
-function createParticles(x, y, color, count = 5) {
-for (let i = 0; i < count; i++) {
-particles.push(new Particle(x, y, color));
-}
+function updateProgress() {
+const target = levels[currentLevel - 1].target;
+const pct = (score / target) * 100;
+document.getElementById('progress-fill').style.width = pct + '%';
 }
 
 function takeDamage() {
 if (player.invincible) return;
 
 health--;
+playSound('damage');
 updateHearts();
 
 player.invincible = true;
-player.invincibleTime = 120; // 2 seconds at 60fps
+player.invincibleTime = 100;
 
 createParticles(player.x + player.width/2, player.y + player.height/2, '#FF0000', 10);
 
-if (health <= 0) {
-gameOver();
-}
+if (health <= 0) gameOver();
 }
 
 function updateHearts() {
-const heartsContainer = document.getElementById('hearts');
-heartsContainer.innerHTML = '❤️'.repeat(health) + '🖤'.repeat(3 - health);
+document.getElementById('hearts').innerHTML = '❤️'.repeat(health) + '🖤'.repeat(3 - health);
 }
 
 function updateScore() {
 document.getElementById('score').textContent = score;
+document.getElementById('current-score').textContent = totalScore;
+updateProgress();
+}
+
+function showQuiz() {
+gameRunning = false;
+const q = quizzes[Math.floor(Math.random() * quizzes.length)];
+
+document.getElementById('quiz-question').textContent = q.question;
+const opts = document.getElementById('quiz-options');
+opts.innerHTML = '';
+
+q.options.forEach((opt, i) => {
+const btn = document.createElement('button');
+btn.className = 'quiz-btn';
+btn.textContent = opt;
+btn.onclick = () => {
+if (i === q.correct) {
+btn.classList.add('correct');
+playSound('collect');
+totalScore += 50;
+updateScore();
+showTip(q.tip);
+setTimeout(() => {
+document.getElementById('quiz-screen').style.display = 'none';
+gameRunning = true;
+gameLoop();
+}, 1500);
+} else {
+btn.classList.add('wrong');
+playSound('damage');
+setTimeout(() => btn.classList.remove('wrong'), 500);
+}
+};
+opts.appendChild(btn);
+});
+
+document.getElementById('quiz-screen').style.display = 'flex';
 }
 
 function checkCollisions() {
-// Check enemy collisions
-enemies.forEach(enemy => {
-if (player.checkCollision(enemy)) {
-// Check if jumping on top
-if (player.velocityY > 0 && player.y + player.height < enemy.y + enemy.height/2) {
-// Defeat enemy
-enemy.x = -1000; // Remove from game
-player.velocityY = -8; // Bounce
+enemies.forEach(e => {
+if (player.checkCollision(e)) {
+if (player.vy > 0 && player.y + player.height < e.y + e.height/2) {
+e.x = -1000;
+player.vy = -8;
 score++;
+totalScore += 10;
+playSound('enemy');
 updateScore();
-createParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#FFD700', 8);
-showTip();
+createParticles(e.x + e.width/2, e.y + e.height/2, '#FFD700', 8);
 
-if (score >= 5) {
-winGame();
+if (score === 2 || score === 4) {
+showQuiz();
+return;
 }
+
+if (score >= levels[currentLevel - 1].target) levelComplete();
 } else {
 takeDamage();
 }
 }
 });
 
-// Check collectible collisions
-collectibles.forEach(collectible => {
-if (!collectible.collected && player.checkCollision(collectible)) {
-collectible.collected = true;
+collectibles.forEach(c => {
+if (!c.collected && player.checkCollision(c)) {
+c.collected = true;
 score++;
+totalScore += 20;
+playSound('collect');
 updateScore();
-createParticles(collectible.x + collectible.width/2, collectible.y + collectible.height/2, '#00FF00', 6);
-showTip();
+createParticles(c.x + c.width/2, c.y + c.height/2, '#00FF00', 6);
+showTip("Great! Keep collecting!");
 
-if (score >= 5) {
-winGame();
+if (score === 2 || score === 4) {
+showQuiz();
+return;
 }
+
+if (score >= levels[currentLevel - 1].target) levelComplete();
 }
 });
 }
 
 function updateCamera() {
-// Center camera on player
 cameraX = player.x - GAME_WIDTH / 3;
-
-// Clamp camera
+const maxCam = levels[currentLevel - 1].platforms[levels[currentLevel - 1].platforms.length - 1].x - GAME_WIDTH + 300;
 if (cameraX < 0) cameraX = 0;
-if (cameraX > 2000 - GAME_WIDTH) cameraX = 2000 - GAME_WIDTH;
+if (cameraX > maxCam) cameraX = maxCam;
 }
 
-function drawBackground() {
-// Draw clouds
-ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-for (let i = 0; i < 5; i++) {
-const x = (i * 300 - cameraX * 0.3) % (GAME_WIDTH + 300) - 50;
-const y = 50 + i * 30;
+function drawBG() {
+const lvl = levels[currentLevel - 1];
+const grad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+grad.addColorStop(0, lvl.bg[0]);
+grad.addColorStop(0.5, lvl.bg[1]);
+grad.addColorStop(1, lvl.bg[2]);
+ctx.fillStyle = grad;
+ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+ctx.fillStyle = 'rgba(255,255,255,0.5)';
+for (let i = 0; i < 4; i++) {
+const x = (i * 250 - cameraX * 0.2) % (GAME_WIDTH + 300) - 50;
+const y = 40 + i * 30;
 ctx.beginPath();
-ctx.arc(x, y, 40, 0, Math.PI * 2);
-ctx.arc(x + 50, y, 50, 0, Math.PI * 2);
-ctx.arc(x + 100, y, 40, 0, Math.PI * 2);
+ctx.arc(x, y, 30, 0, Math.PI * 2);
+ctx.arc(x + 50, y, 40, 0, Math.PI * 2);
+ctx.arc(x + 100, y, 30, 0, Math.PI * 2);
 ctx.fill();
 }
 }
@@ -804,65 +1258,103 @@ ctx.fill();
 function gameLoop() {
 if (!gameRunning) return;
 
-// Clear canvas
 ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-// Draw background
-drawBackground();
+drawBG();
 
-// Update game objects
 player.update();
-enemies.forEach(enemy => enemy.update());
-collectibles.forEach(collectible => collectible.update());
-particles.forEach((particle, index) => {
-particle.update();
-if (particle.life <= 0) particles.splice(index, 1);
+enemies.forEach(e => e.update());
+collectibles.forEach(c => c.update());
+particles.forEach((p, i) => {
+p.update();
+if (p.life <= 0) particles.splice(i, 1);
 });
 
-// Check collisions
 checkCollisions();
-
-// Update camera
 updateCamera();
 
-// Draw everything
-platforms.forEach(platform => platform.draw());
-collectibles.forEach(collectible => collectible.draw());
-enemies.forEach(enemy => enemy.draw());
+platforms.forEach(p => p.draw());
+collectibles.forEach(c => c.draw());
+enemies.forEach(e => e.draw());
 player.draw();
-particles.forEach(particle => particle.draw());
+particles.forEach(p => p.draw());
 
 requestAnimationFrame(gameLoop);
 }
 
+function levelComplete() {
+gameRunning = false;
+playSound('win');
+
+totalScore += health * 30;
+
+document.getElementById('level-score').textContent = `Score: ${totalScore}`;
+
+const btn = document.getElementById('nextLevelBtn');
+if (currentLevel >= 3) {
+btn.textContent = 'Finish Game!';
+btn.onclick = winGame;
+} else {
+btn.textContent = 'Next Level!';
+btn.onclick = nextLevel;
+}
+
+document.getElementById('level-complete-screen').style.display = 'flex';
+}
+
+function nextLevel() {
+document.getElementById('level-complete-screen').style.display = 'none';
+initLevel(currentLevel + 1);
+gameRunning = true;
+gameLoop();
+}
+
 function startGame() {
-document.getElementById('start-screen').classList.add('hidden');
-score = 0;
+document.getElementById('start-screen').style.display = 'none';
+totalScore = 0;
 health = 3;
-updateScore();
 updateHearts();
-initLevel();
+updateScore();
+initLevel(1);
 gameRunning = true;
 gameLoop();
 }
 
 function gameOver() {
 gameRunning = false;
-document.getElementById('game-over-screen').classList.remove('hidden');
+document.getElementById('final-score-gameover').textContent = `Score: ${totalScore}`;
+document.getElementById('game-over-screen').style.display = 'flex';
 }
 
 function winGame() {
 gameRunning = false;
-document.getElementById('final-score').textContent =
-`Collected ${score}/5 toothbrushes with ${health} hearts remaining!`;
-document.getElementById('win-screen').classList.remove('hidden');
+playSound('win');
+
+if (totalScore > highScore) {
+highScore = totalScore;
+localStorage.setItem('drToothingtonHighScore', highScore);
+}
+
+const stars = health === 3 ? '⭐⭐⭐' : health === 2 ? '⭐⭐' : '⭐';
+document.getElementById('final-stars').textContent = stars;
+document.getElementById('certificate-text').textContent = `Completed all 3 levels with ${totalScore} points!`;
+document.getElementById('final-high-score').textContent = `High Score: ${highScore}`;
+
+document.getElementById('level-complete-screen').style.display = 'none';
+document.getElementById('win-screen').style.display = 'flex';
 }
 
 function resetGame() {
-document.getElementById('game-over-screen').classList.add('hidden');
-document.getElementById('win-screen').classList.add('hidden');
+document.getElementById('game-over-screen').style.display = 'none';
+document.getElementById('win-screen').style.display = 'none';
 startGame();
 }
+
+// Prevent unwanted behaviors
+document.addEventListener('dblclick', e => e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('gesturechange', e => e.preventDefault());
+document.addEventListener('gestureend', e => e.preventDefault());
 </script>
 </body>
 </html>
