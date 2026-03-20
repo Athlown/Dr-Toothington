@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dr. Toothington - Dental Adventure</title>
+<title>د. لمّاع - مغامرة الأسنان</title>
 <style>
 * {
 margin: 0;
@@ -21,7 +21,7 @@ display: flex;
 justify-content: center;
 align-items: center;
 min-height: 100vh;
-font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 overflow: hidden;
 position: fixed;
 width: 100%;
@@ -48,7 +48,6 @@ align-items: center;
 
 canvas {
 display: block;
-background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #98FB98 100%);
 max-width: 100%;
 max-height: 100%;
 object-fit: contain;
@@ -71,7 +70,6 @@ display: flex;
 justify-content: space-between;
 padding: 10px;
 gap: 10px;
-position: relative;
 }
 
 .hud-item {
@@ -90,18 +88,17 @@ gap: 5px;
 .hearts {
 display: flex;
 gap: 3px;
-margin-right: 50px; /* Space for sound button */
+margin-left: 50px;
 }
 
 .heart {
 font-size: 20px;
 }
 
-/* Sound button moved to top left area */
 .sound-toggle {
 position: absolute;
 top: 10px;
-right: 10px;
+left: 10px;
 background: rgba(255,255,255,0.9);
 border: none;
 border-radius: 50%;
@@ -111,7 +108,6 @@ font-size: 20px;
 cursor: pointer;
 z-index: 20;
 pointer-events: auto;
-box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .level-indicator {
@@ -125,33 +121,27 @@ padding: 6px 15px;
 border-radius: 15px;
 font-weight: bold;
 font-size: 14px;
-box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 white-space: nowrap;
 }
 
-.progress-bar {
+.objective-box {
 position: absolute;
 top: 90px;
 left: 50%;
 transform: translateX(-50%);
-width: 200px;
-height: 12px;
-background: rgba(255,255,255,0.3);
-border-radius: 6px;
-overflow: hidden;
+background: rgba(255,255,255,0.95);
+padding: 8px 15px;
+border-radius: 10px;
+font-size: 13px;
+color: #2d3748;
+text-align: center;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+max-width: 90%;
 }
 
-.progress-fill {
-height: 100%;
-background: linear-gradient(90deg, #48bb78, #38a169);
-transition: width 0.3s ease;
-border-radius: 6px;
-}
-
-/* Touch Controls - Moved UP */
 .touch-controls {
 position: absolute;
-bottom: 80px; /* Moved up from 20px */
+bottom: 80px;
 left: 0;
 width: 100%;
 display: flex;
@@ -180,24 +170,17 @@ display: flex;
 align-items: center;
 justify-content: center;
 box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-transition: all 0.1s;
 -webkit-tap-highlight-color: transparent;
 }
 
 .control-btn:active, .control-btn.active {
 transform: scale(0.9);
-background: rgba(102, 126, 234, 1);
 }
 
 .btn-jump {
 background: rgba(72, 187, 120, 0.95);
 }
 
-.btn-jump:active, .btn-jump.active {
-background: rgba(72, 187, 120, 1);
-}
-
-/* Screens */
 .screen {
 position: absolute;
 top: 0;
@@ -238,7 +221,7 @@ display: none;
 }
 
 h1 {
-font-size: 8vw;
+font-size: 10vw;
 color: white;
 text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
 text-align: center;
@@ -256,7 +239,6 @@ text-align: center;
 font-size: 15vw;
 margin: 10px;
 animation: float 3s ease-in-out infinite;
-filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
 }
 
 @keyframes float {
@@ -278,10 +260,6 @@ margin-top: 20px;
 touch-action: manipulation;
 }
 
-.btn-primary:active {
-transform: scale(0.95);
-}
-
 .instructions {
 background: rgba(255,255,255,0.95);
 padding: 20px;
@@ -297,11 +275,6 @@ font-size: 3.5vw;
 color: #667eea;
 margin-bottom: 10px;
 font-size: 4.5vw;
-}
-
-.instructions p {
-margin: 5px 0;
-line-height: 1.4;
 }
 
 .quiz-container {
@@ -338,21 +311,14 @@ color: #4a5568;
 touch-action: manipulation;
 }
 
-.quiz-btn:active {
-background: #f7fafc;
-border-color: #667eea;
-}
-
 .quiz-btn.correct {
 background: #48bb78;
 color: white;
-border-color: #48bb78;
 }
 
 .quiz-btn.wrong {
 background: #f56565;
 color: white;
-border-color: #f56565;
 }
 
 .certificate {
@@ -367,12 +333,6 @@ width: 90%;
 max-width: 350px;
 }
 
-.certificate h2 {
-color: #d63031;
-margin-bottom: 10px;
-font-size: 5vw;
-}
-
 .stars {
 font-size: 10vw;
 margin: 10px 0;
@@ -380,7 +340,7 @@ margin: 10px 0;
 
 .tip-box {
 position: absolute;
-bottom: 160px; /* Moved up to be above controls */
+bottom: 160px;
 left: 50%;
 transform: translateX(-50%);
 background: rgba(255, 248, 220, 0.98);
@@ -395,16 +355,14 @@ opacity: 0;
 transition: opacity 0.3s;
 pointer-events: none;
 font-weight: bold;
-z-index: 50;
 }
 
 .tip-box.show {
 opacity: 1;
 }
 
-/* Desktop adjustments */
 @media (min-width: 768px) {
-h1 { font-size: 48px; }
+h1 { font-size: 56px; }
 .subtitle { font-size: 20px; }
 .tooth-icon { font-size: 100px; }
 .btn-primary { font-size: 24px; }
@@ -412,20 +370,10 @@ h1 { font-size: 48px; }
 .instructions h3 { font-size: 20px; }
 .quiz-question { font-size: 18px; }
 .quiz-btn { font-size: 16px; }
-.certificate h2 { font-size: 24px; }
 .tip-box { font-size: 14px; }
 .control-btn { width: 55px; height: 55px; font-size: 22px; }
 .touch-controls { bottom: 60px; }
 .tip-box { bottom: 130px; }
-}
-
-/* Landscape mode adjustments */
-@media (max-height: 500px) {
-.touch-controls { bottom: 10px; }
-.control-btn { width: 50px; height: 50px; font-size: 20px; }
-.tip-box { bottom: 70px; }
-.level-indicator { top: 45px; font-size: 12px; }
-.progress-bar { top: 75px; height: 10px; }
 }
 </style>
 </head>
@@ -435,13 +383,12 @@ h1 { font-size: 48px; }
 <canvas id="gameCanvas"></canvas>
 
 <div id="ui-layer">
-<!-- Sound button moved to top right, separate from hearts -->
 <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
 
 <div class="hud-top">
 <div class="hud-item">
 <span>🪥</span>
-<span id="score">0</span>/<span id="target">5</span>
+<span id="score">0</span>/<span id="target">3</span>
 </div>
 <div class="hud-item">
 <span>🏆</span>
@@ -454,19 +401,18 @@ h1 { font-size: 48px; }
 </div>
 </div>
 
-<div class="level-indicator" id="level-indicator">Level 1: Dental Clinic</div>
+<div class="level-indicator" id="level-indicator">المرحلة ١: عيادة الأسنان</div>
 
-<div class="progress-bar">
-<div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+<div class="objective-box" id="objective">
+🎯 الهدف: اجمع 3 فرشاة أسنان ووصل إلى العلم 🚩
 </div>
 
 <div class="tip-box" id="tip-box"></div>
 
-<!-- Touch Controls - Raised higher -->
 <div class="touch-controls" id="touchControls">
 <div class="d-pad">
-<button class="control-btn" id="btnLeft">⬅️</button>
-<button class="control-btn" id="btnRight">➡️</button>
+<button class="control-btn" id="btnRight">⬅️</button>
+<button class="control-btn" id="btnLeft">➡️</button>
 </div>
 <button class="control-btn btn-jump" id="btnJump">⬆️</button>
 </div>
@@ -475,24 +421,24 @@ h1 { font-size: 48px; }
 <!-- Start Screen -->
 <div id="start-screen" class="screen">
 <div class="tooth-icon">🦷</div>
-<h1>Dr. Toothington</h1>
-<div class="subtitle">Game by: Dr Abdullah Alzaid</div>
+<h1>د. لمّاع</h1>
+<div class="subtitle">لعبة: د. عبدالله آل زيد</div>
 <div class="instructions">
-<h3>🎮 How to Play</h3>
-<p>⬅️ ➡️ Move | ⬆️ Jump</p>
-<p>🪥 Collect toothbrushes</p>
-<p>⚡ Jump on sugar monsters</p>
-<p>❓ Answer dental quizzes</p>
-<p>🏆 Beat all 3 levels!</p>
+<h3>🎮 طريقة اللعب</h3>
+<p>⬅️ ➡️ تحرك | ⬆️ قفز</p>
+<p>🪥 اجمع فرشاة الأسنان</p>
+<p>⚡ اقفز على وحوش السكر</p>
+<p>🚩 وصل إلى العلم لإنهاء المرحلة</p>
+<p>❓ أجب على الأسئلة بعد كل مرحلة</p>
 </div>
-<button class="btn-primary" onclick="startGame()">Start Adventure!</button>
+<button class="btn-primary" onclick="startGame()">ابدأ المغامرة!</button>
 </div>
 
 <!-- Quiz Screen -->
 <div id="quiz-screen" class="screen">
 <div class="quiz-container">
-<div style="font-size: 40px; margin-bottom: 10px;">🤔</div>
-<div class="quiz-question" id="quiz-question">Question?</div>
+<div style="font-size: 40px; margin-bottom: 10px;">🦷</div>
+<div class="quiz-question" id="quiz-question">السؤال؟</div>
 <div class="quiz-options" id="quiz-options"></div>
 </div>
 </div>
@@ -500,107 +446,145 @@ h1 { font-size: 48px; }
 <!-- Level Complete Screen -->
 <div id="level-complete-screen" class="screen">
 <div class="tooth-icon">🎉</div>
-<h1>Level Complete!</h1>
-<div style="color: white; font-size: 18px; margin: 10px;" id="level-score">Score: 0</div>
-<button class="btn-primary" id="nextLevelBtn" onclick="nextLevel()">Next Level!</button>
+<h1>أكملت المرحلة!</h1>
+<div style="color: white; font-size: 18px; margin: 10px;" id="level-score">النقاط: 0</div>
+<button class="btn-primary" id="nextLevelBtn" onclick="showLevelQuiz()">اختبر معلوماتك!</button>
 </div>
 
 <!-- Game Over Screen -->
 <div id="game-over-screen" class="screen">
 <div class="tooth-icon">😭</div>
-<h1>Game Over!</h1>
-<div style="color: white; font-size: 18px; margin: 10px;" id="final-score-gameover">Score: 0</div>
-<button class="btn-primary" onclick="resetGame()">Try Again</button>
+<h1>انتهت اللعبة!</h1>
+<div style="color: white; font-size: 18px; margin: 10px;" id="final-score-gameover">النقاط: 0</div>
+<button class="btn-primary" onclick="resetGame()">حاول مرة أخرى</button>
 </div>
 
 <!-- Win Screen -->
 <div id="win-screen" class="screen">
 <div class="tooth-icon">🏆</div>
-<h1>You Win!</h1>
+<h1>فزت!</h1>
 <div class="stars" id="final-stars">⭐⭐⭐</div>
 <div class="certificate">
-<h2>🏆 Dental Hero Certificate 🏆</h2>
-<p id="certificate-text" style="font-weight: bold; margin: 10px 0;">Completed all levels!</p>
-<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 10px; margin: 10px 0; font-weight: bold;" id="final-high-score">High Score: 0</div>
+<h2>🏆 شهادة بطل الأسنان 🏆</h2>
+<p id="certificate-text" style="font-weight: bold; margin: 10px 0;">أكملت جميع المراحل!</p>
+<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 10px; margin: 10px 0; font-weight: bold;" id="final-high-score">أعلى نتيجة: 0</div>
 <p style="margin-top: 10px; font-size: 14px; color: #d63031; font-weight: bold;">
-Remember: Brush twice, floss once, smile always!
+تذكر: نظف أسنانك مرتين يومياً، واستخدم الخيط مرة واحدة، وابتسم دائماً!
 </p>
 </div>
-<button class="btn-primary" onclick="resetGame()">Play Again</button>
+<button class="btn-primary" onclick="resetGame()">العب مرة أخرى</button>
 </div>
 </div>
 </div>
 
 <script>
-// Audio
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-let audioCtx = new AudioContext();
+// Audio system with better mobile support
+let audioCtx = null;
 let soundEnabled = true;
+let audioInitialized = false;
+
+function initAudio() {
+if (audioInitialized) return;
+try {
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+audioCtx = new AudioContext();
+audioInitialized = true;
+} catch(e) {
+console.log('Audio not supported');
+}
+}
 
 function toggleSound() {
 soundEnabled = !soundEnabled;
 document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+if (soundEnabled && !audioInitialized) {
+initAudio();
+}
 }
 
 function playSound(type) {
-if (!soundEnabled) return;
-if (audioCtx.state === 'suspended') audioCtx.resume();
+if (!soundEnabled || !audioCtx) return;
+if (audioCtx.state === 'suspended') {
+audioCtx.resume();
+}
 
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
 osc.connect(gain);
 gain.connect(audioCtx.destination);
 
+const now = audioCtx.currentTime;
+
 switch(type) {
 case 'jump':
-osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
-gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-osc.start();
-osc.stop(audioCtx.currentTime + 0.1);
+osc.type = 'sine';
+osc.frequency.setValueAtTime(300, now);
+osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+gain.gain.setValueAtTime(0.4, now);
+gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+osc.start(now);
+osc.stop(now + 0.1);
 break;
+
 case 'collect':
-osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-osc.start();
-osc.stop(audioCtx.currentTime + 0.2);
+osc.type = 'sine';
+osc.frequency.setValueAtTime(523.25, now);
+osc.frequency.setValueAtTime(659.25, now + 0.1);
+osc.frequency.setValueAtTime(783.99, now + 0.2);
+gain.gain.setValueAtTime(0.4, now);
+gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+osc.start(now);
+osc.stop(now + 0.3);
 break;
+
 case 'enemy':
-osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
-gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-osc.start();
-osc.stop(audioCtx.currentTime + 0.15);
+osc.type = 'sawtooth';
+osc.frequency.setValueAtTime(200, now);
+osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+gain.gain.setValueAtTime(0.3, now);
+gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+osc.start(now);
+osc.stop(now + 0.15);
 break;
+
 case 'damage':
-osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.2);
-gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-osc.start();
-osc.stop(audioCtx.currentTime + 0.2);
+osc.type = 'sawtooth';
+osc.frequency.setValueAtTime(150, now);
+osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+gain.gain.setValueAtTime(0.5, now);
+gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+osc.start(now);
+osc.stop(now + 0.3);
 break;
+
 case 'win':
 [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
 const o = audioCtx.createOscillator();
 const g = audioCtx.createGain();
 o.connect(g);
 g.connect(audioCtx.destination);
+o.type = 'sine';
 o.frequency.value = freq;
-g.gain.setValueAtTime(0.3, audioCtx.currentTime + i * 0.1);
-g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
-o.start(audioCtx.currentTime + i * 0.1);
-o.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+g.gain.setValueAtTime(0.4, now + i * 0.1);
+g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.4);
+o.start(now + i * 0.1);
+o.stop(now + i * 0.1 + 0.4);
 });
+break;
+
+case 'flag':
+osc.type = 'square';
+osc.frequency.setValueAtTime(400, now);
+osc.frequency.setValueAtTime(600, now + 0.1);
+osc.frequency.setValueAtTime(800, now + 0.2);
+gain.gain.setValueAtTime(0.3, now);
+gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+osc.start(now);
+osc.stop(now + 0.4);
 break;
 }
 }
 
-// Canvas setup
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -633,19 +617,17 @@ scale = newWidth / GAME_WIDTH;
 resize();
 window.addEventListener('resize', resize);
 
-// Game state
 let gameRunning = false;
 let score = 0;
 let totalScore = 0;
 let health = 3;
 let cameraX = 0;
 let currentLevel = 1;
-let highScore = localStorage.getItem('drToothingtonHighScore') || 0;
+let highScore = localStorage.getItem('drLammaHighScore') || 0;
+let levelComplete = false;
 
-// Input
 const keys = { left: false, right: false, up: false };
 
-// Touch controls
 function setupTouchControls() {
 const btnLeft = document.getElementById('btnLeft');
 const btnRight = document.getElementById('btnRight');
@@ -667,7 +649,6 @@ keys[key] = false;
 btn.classList.remove('active');
 };
 
-// Touch events
 btnLeft.addEventListener('touchstart', (e) => handleTouch(btnLeft, 'left', e), {passive: false});
 btnLeft.addEventListener('touchend', (e) => handleRelease(btnLeft, 'left', e), {passive: false});
 btnLeft.addEventListener('touchcancel', (e) => handleRelease(btnLeft, 'left', e), {passive: false});
@@ -680,7 +661,6 @@ btnJump.addEventListener('touchstart', (e) => handleTouch(btnJump, 'up', e), {pa
 btnJump.addEventListener('touchend', (e) => handleRelease(btnJump, 'up', e), {passive: false});
 btnJump.addEventListener('touchcancel', (e) => handleRelease(btnJump, 'up', e), {passive: false});
 
-// Mouse events
 btnLeft.addEventListener('mousedown', (e) => handleTouch(btnLeft, 'left', e));
 btnLeft.addEventListener('mouseup', (e) => handleRelease(btnLeft, 'left', e));
 btnLeft.addEventListener('mouseleave', () => handleRelease(btnLeft, 'left'));
@@ -696,7 +676,6 @@ btnJump.addEventListener('mouseleave', () => handleRelease(btnJump, 'up'));
 
 setupTouchControls();
 
-// Keyboard
 window.addEventListener('keydown', (e) => {
 if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
 if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
@@ -709,105 +688,124 @@ if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
 if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') keys.up = false;
 });
 
-// Game data
 const quizzes = [
-{question: "How long should you brush?", options: ["30 sec", "1 min", "2 min", "5 min"], correct: 2, tip: "Brush for 2 minutes, twice a day!"},
-{question: "What fights cavities?", options: ["Sugar", "Fluoride", "Soda", "Candy"], correct: 1, tip: "Fluoride strengthens enamel!"},
-{question: "How often floss?", options: ["Never", "Weekly", "Daily", "Monthly"], correct: 2, tip: "Floss once a day!"},
-{question: "Bad for teeth?", options: ["Water", "Milk", "Soda", "Vegetables"], correct: 2, tip: "Sugary drinks cause cavities!"},
-{question: "Dentist visits?", options: ["When hurt", "6 months", "Yearly", "Never"], correct: 1, tip: "Visit every 6 months!"}
+{question: "كم دقيقة يجب أن تفرش أسنانك؟", options: ["٣٠ ثانية", "دقيقة واحدة", "دقيقتان", "٥ دقائق"], correct: 2, tip: "نظف أسنانك لمدة دقيقتين، مرتين في اليوم!"},
+{question: "ما الذي يحارب التسوس؟", options: ["السكر", "الفلورايد", "الصودا", "الحلوى"], correct: 1, tip: "الفلورايد يقوي المينا ويمنع التسوس!"},
+{question: "كم مرة يجب استخدام الخيط؟", options: ["أبداً", "أسبوعياً", "يومياً", "شهرياً"], correct: 2, tip: "استخدم الخيط مرة واحدة يومياً!"},
+{question: "ما الضار بالأسنان؟", options: ["الماء", "الحليب", "الصودا", "الخضروات"], correct: 2, tip: "المشروبات السكرية تسبب التسوس!"},
+{question: "متى تزور طبيب الأسنان؟", options: ["عند الألم فقط", "كل ٦ أشهر", "سنوياً", "أبداً"], correct: 1, tip: "زيارة كل ٦ أشهر للحفاظ على صحة الأسنان!"}
+];
+
+const levelNames = [
+"المرحلة ١: عيادة الأسنان",
+"المرحلة ٢: أرض الحلوى",
+"المرحلة ٣: معركة الحمام"
+];
+
+const objectives = [
+"🎯 الهدف: اجمع ٣ فرشاة أسنان ووصل إلى العلم 🚩",
+"🎯 الهدف: اجمع ٤ فرشاة أسنان ووصل إلى العلم 🚩",
+"🎯 الهدف: اجمع ٥ فرشاة أسنان ووصل إلى العلم 🚩"
 ];
 
 const levels = [
 {
-name: "Dental Clinic",
+name: "عيادة الأسنان",
 bg: ["#87CEEB", "#E0F6FF", "#98FB98"],
 platforms: [
-{x: 0, y: 450, w: 300, h: 150},
-{x: 350, y: 380, w: 150, h: 40},
-{x: 550, y: 300, w: 150, h: 40},
-{x: 750, y: 220, w: 120, h: 40, type: 'cloud'},
-{x: 950, y: 350, w: 200, h: 40},
-{x: 1200, y: 280, w: 150, h: 40},
-{x: 1450, y: 200, w: 150, h: 40},
-{x: 1700, y: 350, w: 400, h: 250}
+{x: 0, y: 450, w: 250, h: 150},
+{x: 300, y: 400, w: 120, h: 40},
+{x: 480, y: 320, w: 100, h: 40},
+{x: 640, y: 250, w: 120, h: 40},
+{x: 820, y: 350, w: 150, h: 40},
+{x: 1050, y: 280, w: 100, h: 40},
+{x: 1250, y: 200, w: 100, h: 40},
+{x: 1450, y: 350, w: 400, h: 250}
 ],
 enemies: [
-{x: 400, y: 345, type: 'candy'},
-{x: 600, y: 265, type: 'chocolate'},
-{x: 1050, y: 315, type: 'soda'},
-{x: 1300, y: 245, type: 'gummy'},
-{x: 1800, y: 315, type: 'cookie'}
+{x: 330, y: 365, type: 'candy'},
+{x: 510, y: 285, type: 'chocolate'},
+{x: 870, y: 315, type: 'soda'},
+{x: 1100, y: 245, type: 'gummy'}
 ],
 collectibles: [
-{x: 400, y: 320}, {x: 600, y: 240}, {x: 1000, y: 300},
-{x: 1500, y: 150}, {x: 1900, y: 280}
+{x: 330, y: 340},
+{x: 510, y: 260},
+{x: 870, y: 310}
 ],
-target: 5
+flagX: 1750,
+target: 3
 },
 {
-name: "Candy Land",
+name: "أرض الحلوى",
 bg: ["#FFB6C1", "#FFC0CB", "#FFE4E1"],
 platforms: [
-{x: 0, y: 450, w: 250, h: 150},
-{x: 300, y: 400, w: 100, h: 40},
-{x: 450, y: 320, w: 100, h: 40},
-{x: 600, y: 250, w: 100, h: 40},
-{x: 750, y: 350, w: 150, h: 40},
-{x: 950, y: 280, w: 100, h: 40},
+{x: 0, y: 450, w: 200, h: 150},
+{x: 250, y: 400, w: 100, h: 40},
+{x: 400, y: 320, w: 100, h: 40},
+{x: 550, y: 240, w: 100, h: 40},
+{x: 700, y: 350, w: 150, h: 40},
+{x: 900, y: 280, w: 100, h: 40},
 {x: 1100, y: 200, w: 100, h: 40},
-{x: 1300, y: 300, w: 200, h: 40},
-{x: 1600, y: 400, w: 500, h: 200}
+{x: 1300, y: 320, w: 150, h: 40},
+{x: 1550, y: 400, w: 450, h: 200}
 ],
 enemies: [
-{x: 320, y: 365, type: 'candy'},
-{x: 470, y: 285, type: 'chocolate'},
-{x: 620, y: 215, type: 'soda'},
-{x: 800, y: 315, type: 'gummy'},
-{x: 1150, y: 165, type: 'cookie'},
-{x: 1400, y: 265, type: 'candy'}
+{x: 280, y: 365, type: 'candy'},
+{x: 430, y: 285, type: 'chocolate'},
+{x: 580, y: 205, type: 'soda'},
+{x: 750, y: 315, type: 'gummy'},
+{x: 940, y: 245, type: 'cookie'},
+{x: 1350, y: 285, type: 'candy'}
 ],
 collectibles: [
-{x: 320, y: 340}, {x: 470, y: 260}, {x: 620, y: 190},
-{x: 800, y: 310}, {x: 1120, y: 160}, {x: 1700, y: 350}
+{x: 280, y: 340},
+{x: 430, y: 260},
+{x: 750, y: 310},
+{x: 1130, y: 160}
 ],
-target: 6
+flagX: 1850,
+target: 4
 },
 {
-name: "Bathroom Battle",
+name: "معركة الحمام",
 bg: ["#B0E0E6", "#E0FFFF", "#F0F8FF"],
 platforms: [
-{x: 0, y: 450, w: 200, h: 150},
-{x: 250, y: 380, w: 120, h: 40},
-{x: 420, y: 300, w: 100, h: 40},
-{x: 580, y: 380, w: 150, h: 40},
-{x: 800, y: 250, w: 100, h: 40},
-{x: 950, y: 320, w: 120, h: 40},
-{x: 1150, y: 200, w: 100, h: 40},
-{x: 1350, y: 280, w: 150, h: 40},
-{x: 1600, y: 350, w: 100, h: 40},
-{x: 1800, y: 450, w: 400, h: 150}
+{x: 0, y: 450, w: 180, h: 150},
+{x: 220, y: 380, w: 100, h: 40},
+{x: 370, y: 300, w: 100, h: 40},
+{x: 520, y: 380, w: 120, h: 40},
+{x: 700, y: 250, w: 100, h: 40},
+{x: 850, y: 320, w: 100, h: 40},
+{x: 1000, y: 200, w: 100, h: 40},
+{x: 1180, y: 280, w: 120, h: 40},
+{x: 1380, y: 360, w: 100, h: 40},
+{x: 1550, y: 280, w: 100, h: 40},
+{x: 1750, y: 450, w: 400, h: 150}
 ],
 enemies: [
-{x: 280, y: 345, type: 'candy'},
-{x: 440, y: 265, type: 'chocolate'},
-{x: 630, y: 345, type: 'soda'},
-{x: 820, y: 215, type: 'gummy'},
-{x: 1000, y: 285, type: 'cookie'},
-{x: 1180, y: 165, type: 'candy'},
-{x: 1400, y: 245, type: 'chocolate'},
-{x: 1650, y: 315, type: 'soda'}
+{x: 250, y: 345, type: 'candy'},
+{x: 400, y: 265, type: 'chocolate'},
+{x: 560, y: 345, type: 'soda'},
+{x: 730, y: 215, type: 'gummy'},
+{x: 880, y: 285, type: 'cookie'},
+{x: 1030, y: 165, type: 'candy'},
+{x: 1210, y: 245, type: 'chocolate'},
+{x: 1410, y: 325, type: 'soda'},
+{x: 1580, y: 245, type: 'gummy'}
 ],
 collectibles: [
-{x: 280, y: 320}, {x: 440, y: 240}, {x: 630, y: 320},
-{x: 820, y: 210}, {x: 1180, y: 160}, {x: 1400, y: 240},
-{x: 1900, y: 400}
+{x: 250, y: 320},
+{x: 400, y: 240},
+{x: 730, y: 210},
+{x: 1030, y: 160},
+{x: 1580, y: 240}
 ],
-target: 7
+flagX: 1950,
+target: 5
 }
 ];
 
-// Classes
 class Player {
 constructor(x, y) {
 this.x = x;
@@ -910,7 +908,6 @@ if (!this.facingRight) ctx.scale(-1, 1);
 
 const bounce = Math.sin(this.anim * 0.1) * 2;
 
-// Tooth body
 ctx.fillStyle = '#FFFFFF';
 ctx.beginPath();
 ctx.moveTo(-12, -12 + bounce);
@@ -923,20 +920,17 @@ ctx.strokeStyle = '#DDD';
 ctx.lineWidth = 2;
 ctx.stroke();
 
-// Eyes
 ctx.fillStyle = '#000';
 ctx.beginPath();
 ctx.arc(-4, -4 + bounce, 2.5, 0, Math.PI * 2);
 ctx.arc(6, -4 + bounce, 2.5, 0, Math.PI * 2);
 ctx.fill();
 
-// Smile
 ctx.beginPath();
 ctx.arc(0, 4 + bounce, 6, 0, Math.PI);
 ctx.stroke();
 
-// Toothbrush
-if (score > 0 || currentLevel > 1) {
+if (score > 0) {
 ctx.fillStyle = '#FF6B6B';
 ctx.fillRect(12, -4 + bounce, 16, 3);
 ctx.fillStyle = '#FFFFFF';
@@ -948,25 +942,16 @@ ctx.restore();
 }
 
 class Platform {
-constructor(x, y, w, h, type) {
+constructor(x, y, w, h) {
 this.x = x;
 this.y = y;
 this.width = w;
 this.height = h;
-this.type = type;
 }
 
 draw() {
 const dx = this.x - cameraX;
 
-if (this.type === 'cloud') {
-ctx.fillStyle = 'rgba(255,255,255,0.9)';
-ctx.beginPath();
-ctx.arc(dx + 25, this.y + 15, 20, 0, Math.PI * 2);
-ctx.arc(dx + 60, this.y + 15, 25, 0, Math.PI * 2);
-ctx.arc(dx + 95, this.y + 15, 20, 0, Math.PI * 2);
-ctx.fill();
-} else {
 ctx.fillStyle = '#4ADE80';
 ctx.fillRect(dx, this.y, this.width, 15);
 ctx.fillStyle = '#8B4513';
@@ -982,7 +967,6 @@ ctx.fill();
 }
 }
 }
-}
 
 class Enemy {
 constructor(x, y, type) {
@@ -991,7 +975,7 @@ this.y = y;
 this.width = 30;
 this.height = 30;
 this.type = type;
-this.vx = type === 'soda' ? 2 : -1.5;
+this.vx = type === 'soda' ? 2.5 : -2;
 this.startX = x;
 this.range = 100;
 this.anim = 0;
@@ -1062,6 +1046,46 @@ ctx.restore();
 }
 }
 
+class Flag {
+constructor(x, y) {
+this.x = x;
+this.y = y;
+this.width = 40;
+this.height = 60;
+this.anim = 0;
+}
+
+update() {
+this.anim++;
+}
+
+draw() {
+const dx = this.x - cameraX;
+const wave = Math.sin(this.anim * 0.1) * 5;
+
+ctx.save();
+
+ctx.fillStyle = '#8B4513';
+ctx.fillRect(dx + 5, this.y, 5, 60);
+
+ctx.fillStyle = '#FF0000';
+ctx.beginPath();
+ctx.moveTo(dx + 10, this.y);
+ctx.lineTo(dx + 40, this.y + 15 + wave);
+ctx.lineTo(dx + 10, this.y + 30);
+ctx.fill();
+
+ctx.restore();
+}
+
+checkCollision(player) {
+return player.x < this.x + this.width &&
+player.x + player.width > this.x &&
+player.y < this.y + this.height &&
+player.y + player.height > this.y;
+}
+}
+
 class Particle {
 constructor(x, y, color) {
 this.x = x;
@@ -1089,7 +1113,7 @@ ctx.globalAlpha = 1;
 }
 }
 
-let player, platforms = [], enemies = [], collectibles = [], particles = [];
+let player, platforms = [], enemies = [], collectibles = [], particles = [], flag;
 
 function createParticles(x, y, color, count) {
 for (let i = 0; i < count; i++) particles.push(new Particle(x, y, color));
@@ -1105,23 +1129,19 @@ setTimeout(() => tip.classList.remove('show'), 3000);
 function initLevel(lvl) {
 const level = levels[lvl - 1];
 currentLevel = lvl;
+levelComplete = false;
 
 player = new Player(100, 300);
-platforms = level.platforms.map(p => new Platform(p.x, p.y, p.w, p.h, p.type));
+platforms = level.platforms.map(p => new Platform(p.x, p.y, p.w, p.h));
 enemies = level.enemies.map(e => new Enemy(e.x, e.y, e.type));
 collectibles = level.collectibles.map(c => new Collectible(c.x, c.y));
+flag = new Flag(level.flagX, 290);
 particles = [];
 score = 0;
 
 document.getElementById('target').textContent = level.target;
-document.getElementById('level-indicator').textContent = `Level ${lvl}: ${level.name}`;
-updateProgress();
-}
-
-function updateProgress() {
-const target = levels[currentLevel - 1].target;
-const pct = (score / target) * 100;
-document.getElementById('progress-fill').style.width = pct + '%';
+document.getElementById('level-indicator').textContent = levelNames[lvl - 1];
+document.getElementById('objective').textContent = objectives[lvl - 1];
 }
 
 function takeDamage() {
@@ -1146,14 +1166,69 @@ document.getElementById('hearts').innerHTML = '❤️'.repeat(health) + '🖤'.r
 function updateScore() {
 document.getElementById('score').textContent = score;
 document.getElementById('current-score').textContent = totalScore;
-updateProgress();
 }
 
-function showQuiz() {
-gameRunning = false;
-const q = quizzes[Math.floor(Math.random() * quizzes.length)];
+function checkCollisions() {
+enemies.forEach(e => {
+if (player.checkCollision(e)) {
+if (player.vy > 0 && player.y + player.height < e.y + e.height/2) {
+e.x = -1000;
+player.vy = -8;
+score++;
+totalScore += 10;
+playSound('enemy');
+updateScore();
+createParticles(e.x + e.width/2, e.y + e.height/2, '#FFD700', 8);
+showTip("أحسنت! استمر في الجمع!");
+} else {
+takeDamage();
+}
+}
+});
 
+collectibles.forEach(c => {
+if (!c.collected && player.checkCollision(c)) {
+c.collected = true;
+score++;
+totalScore += 20;
+playSound('collect');
+updateScore();
+createParticles(c.x + c.width/2, c.y + c.height/2, '#00FF00', 6);
+showTip("فرشاة أخرى! واصل!");
+}
+});
+
+if (flag.checkCollision(player) && !levelComplete) {
+levelComplete = true;
+playSound('flag');
+createParticles(flag.x + 20, flag.y + 30, '#FFD700', 15);
+
+const required = levels[currentLevel - 1].target;
+if (score >= required) {
+setTimeout(() => showLevelComplete(), 500);
+} else {
+showTip(`تحتاج ${required - score} فرشاة أخرى!`);
+levelComplete = false;
+}
+}
+}
+
+function showLevelComplete() {
+gameRunning = false;
+playSound('win');
+
+totalScore += health * 30;
+
+document.getElementById('level-score').textContent = `النقاط: ${totalScore}`;
+document.getElementById('level-complete-screen').style.display = 'flex';
+}
+
+function showLevelQuiz() {
+document.getElementById('level-complete-screen').style.display = 'none';
+
+const q = quizzes[Math.floor(Math.random() * quizzes.length)];
 document.getElementById('quiz-question').textContent = q.question;
+
 const opts = document.getElementById('quiz-options');
 opts.innerHTML = '';
 
@@ -1170,8 +1245,11 @@ updateScore();
 showTip(q.tip);
 setTimeout(() => {
 document.getElementById('quiz-screen').style.display = 'none';
-gameRunning = true;
-gameLoop();
+if (currentLevel >= 3) {
+winGame();
+} else {
+nextLevel();
+}
 }, 1500);
 } else {
 btn.classList.add('wrong');
@@ -1185,53 +1263,9 @@ opts.appendChild(btn);
 document.getElementById('quiz-screen').style.display = 'flex';
 }
 
-function checkCollisions() {
-enemies.forEach(e => {
-if (player.checkCollision(e)) {
-if (player.vy > 0 && player.y + player.height < e.y + e.height/2) {
-e.x = -1000;
-player.vy = -8;
-score++;
-totalScore += 10;
-playSound('enemy');
-updateScore();
-createParticles(e.x + e.width/2, e.y + e.height/2, '#FFD700', 8);
-
-if (score === 2 || score === 4) {
-showQuiz();
-return;
-}
-
-if (score >= levels[currentLevel - 1].target) levelComplete();
-} else {
-takeDamage();
-}
-}
-});
-
-collectibles.forEach(c => {
-if (!c.collected && player.checkCollision(c)) {
-c.collected = true;
-score++;
-totalScore += 20;
-playSound('collect');
-updateScore();
-createParticles(c.x + c.width/2, c.y + c.height/2, '#00FF00', 6);
-showTip("Great! Keep collecting!");
-
-if (score === 2 || score === 4) {
-showQuiz();
-return;
-}
-
-if (score >= levels[currentLevel - 1].target) levelComplete();
-}
-});
-}
-
 function updateCamera() {
 cameraX = player.x - GAME_WIDTH / 3;
-const maxCam = levels[currentLevel - 1].platforms[levels[currentLevel - 1].platforms.length - 1].x - GAME_WIDTH + 300;
+const maxCam = levels[currentLevel - 1].flagX - GAME_WIDTH + 200;
 if (cameraX < 0) cameraX = 0;
 if (cameraX > maxCam) cameraX = maxCam;
 }
@@ -1267,6 +1301,7 @@ drawBG();
 player.update();
 enemies.forEach(e => e.update());
 collectibles.forEach(c => c.update());
+flag.update();
 particles.forEach((p, i) => {
 p.update();
 if (p.life <= 0) particles.splice(i, 1);
@@ -1276,6 +1311,7 @@ checkCollisions();
 updateCamera();
 
 platforms.forEach(p => p.draw());
+flag.draw();
 collectibles.forEach(c => c.draw());
 enemies.forEach(e => e.draw());
 player.draw();
@@ -1284,34 +1320,19 @@ particles.forEach(p => p.draw());
 requestAnimationFrame(gameLoop);
 }
 
-function levelComplete() {
-gameRunning = false;
-playSound('win');
-
-totalScore += health * 30;
-
-document.getElementById('level-score').textContent = `Score: ${totalScore}`;
-
-const btn = document.getElementById('nextLevelBtn');
-if (currentLevel >= 3) {
-btn.textContent = 'Finish Game!';
-btn.onclick = winGame;
-} else {
-btn.textContent = 'Next Level!';
-btn.onclick = nextLevel;
-}
-
-document.getElementById('level-complete-screen').style.display = 'flex';
-}
-
 function nextLevel() {
-document.getElementById('level-complete-screen').style.display = 'none';
 initLevel(currentLevel + 1);
 gameRunning = true;
 gameLoop();
 }
 
 function startGame() {
+// Initialize audio on first user interaction
+initAudio();
+if (audioCtx && audioCtx.state === 'suspended') {
+audioCtx.resume();
+}
+
 document.getElementById('start-screen').style.display = 'none';
 totalScore = 0;
 health = 3;
@@ -1324,7 +1345,7 @@ gameLoop();
 
 function gameOver() {
 gameRunning = false;
-document.getElementById('final-score-gameover').textContent = `Score: ${totalScore}`;
+document.getElementById('final-score-gameover').textContent = `النقاط: ${totalScore}`;
 document.getElementById('game-over-screen').style.display = 'flex';
 }
 
@@ -1334,15 +1355,14 @@ playSound('win');
 
 if (totalScore > highScore) {
 highScore = totalScore;
-localStorage.setItem('drToothingtonHighScore', highScore);
+localStorage.setItem('drLammaHighScore', highScore);
 }
 
 const stars = health === 3 ? '⭐⭐⭐' : health === 2 ? '⭐⭐' : '⭐';
 document.getElementById('final-stars').textContent = stars;
-document.getElementById('certificate-text').textContent = `Completed all 3 levels with ${totalScore} points!`;
-document.getElementById('final-high-score').textContent = `High Score: ${highScore}`;
+document.getElementById('certificate-text').textContent = `أكملت جميع المراحل بـ ${totalScore} نقطة!`;
+document.getElementById('final-high-score').textContent = `أعلى نتيجة: ${highScore}`;
 
-document.getElementById('level-complete-screen').style.display = 'none';
 document.getElementById('win-screen').style.display = 'flex';
 }
 
@@ -1352,11 +1372,17 @@ document.getElementById('win-screen').style.display = 'none';
 startGame();
 }
 
-// Prevent unwanted behaviors
 document.addEventListener('dblclick', e => e.preventDefault());
 document.addEventListener('gesturestart', e => e.preventDefault());
-document.addEventListener('gesturechange', e => e.preventDefault());
-document.addEventListener('gestureend', e => e.preventDefault());
+
+// Initialize audio on any first touch
+document.addEventListener('touchstart', function initOnTouch() {
+initAudio();
+if (audioCtx && audioCtx.state === 'suspended') {
+audioCtx.resume();
+}
+document.removeEventListener('touchstart', initOnTouch);
+}, {once: true});
 </script>
 </body>
 </html>
